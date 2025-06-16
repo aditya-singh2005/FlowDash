@@ -1,0 +1,9 @@
+@import "tailwindcss";
+
+body{
+  margin: 0,
+}
+
+.text-stroke-white {
+  -webkit-text-stroke: 0.2px #041d05;
+}
