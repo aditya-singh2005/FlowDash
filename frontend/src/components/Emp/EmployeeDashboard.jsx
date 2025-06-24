@@ -15,28 +15,64 @@ function EmployeeDashboard() {
     const [error, setError] = useState(null);
 
     useEffect(() => {
-        const fetchEmployeeDetails = async (employeeName) => {
-            try {
-                setLoading(true);
-                const response = await fetch(`http://localhost:3000/api/employee-details?name=${encodeURIComponent(employeeName)}`);
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                
-                const data = await response.json();
-                setEmployeeData(data);
-                setError(null);
-            } catch (error) {
-                console.error("Error fetching employee:", error);
-                setError(error.message);
-            } finally {
-                setLoading(false);
+    const fetchEmployeeDetails = async () => {
+        try {
+            setLoading(true);
+            
+            // Get token from localStorage
+            const token = localStorage.getItem('token');
+            console.log('Token from localStorage:', token ? 'Token exists' : 'No token found');
+            
+            if (!token) {
+                throw new Error('No authentication token found');
             }
-        };
 
-        fetchEmployeeDetails("Gracie Hamilton");
-    }, []); 
+            console.log('Making request to /api/employee-details...');
+            
+            // Fetch employee details using the token
+            const response = await fetch(`http://localhost:3000/api/employee-details`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': token,
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            console.log('Response status:', response.status);
+            console.log('Response ok:', response.ok);
+            
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.log('Error response:', errorText);
+                
+                if (response.status === 401 || response.status === 403) {
+                    localStorage.removeItem('token');
+                    throw new Error('Authentication failed. Please login again.');
+                }
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            console.log('Received data:', data);
+            console.log('Employee name from data:', data?.emp_name);
+            
+            setEmployeeData(data);
+            setError(null);
+        } catch (error) {
+            console.error("Error fetching employee:", error);
+            setError(error.message);
+            
+            // If authentication error, you might want to redirect to login
+            if (error.message.includes('Authentication failed') || error.message.includes('No authentication token')) {
+                window.location.href = '/';
+            }
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    fetchEmployeeDetails();
+}, []);
 
     // Show loading state
     if (loading) {
@@ -62,6 +98,14 @@ function EmployeeDashboard() {
                     <div className="text-center text-red-600">
                         <CircleAlert className="h-8 w-8 mx-auto mb-4" />
                         <p>Error loading employee data: {error}</p>
+                        {error.includes('Authentication failed') && (
+                            <button 
+                                onClick={() => window.location.href = '/'}
+                                className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                            >
+                                Go to Login
+                            </button>
+                        )}
                     </div>
                 </div>
             </div>
@@ -86,7 +130,7 @@ function EmployeeDashboard() {
 
                     <div className='absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2 bg-white/60 backdrop-blur-xl w-[90%] h-[40%] rounded-3xl shadow-xl flex items-center justify-center z-10'>
                         <div className='flex w-full'>
-                            <img src={employeeData?.profile_url || "https://cdn-icons-png.freepik.com/512/3550/3550652.png"}
+                            <img src={employeeData?.profile_url || "https://t3.ftcdn.net/jpg/06/19/26/46/360_F_619264680_x2PBdGLF54sFe7kTBtAvZnPyXgvaRw0Y.jpg"}
                             className='h-18 w-18 ml-2 rounded-2xl object-cover'
                             alt="profile-pic"></img>
                             <div className='w-full flex justify-between'>
@@ -95,7 +139,7 @@ function EmployeeDashboard() {
                                         {employeeData?.emp_name || 'Loading...'}
                                     </p>
                                     <p className='text-black font-semibold text-md px-2'>
-                                        {employeeData?.position || employeeData?.job_title || 'Software Developer Engineer - II'}
+                                        {employeeData?.department || employeeData?.job_title || 'Software Developer Engineer - II'}
                                     </p>
                                 </div>
                                 <div className=' flex items-center justify-evenly w-2/5'>

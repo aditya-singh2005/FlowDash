@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { Eye, EyeOff, Mail, Lock, Users, Building, User } from 'lucide-react'
+import axios from "axios"
 
 function LoginPage() {
     const [isLogin, setIsLogin] = useState(true)
@@ -12,19 +13,205 @@ function LoginPage() {
     const [isLoading, setIsLoading] = useState(false)
     const [statusMessage, setStatusMessage] = useState('')
 
-    const handleSubmit = (e) => {
-        e.preventDefault()
-        setIsLoading(true)
-        // Simulate loading
-        setTimeout(() => {
-            setIsLoading(false)
+    // Test server connection
+    const testConnection = async () => {
+        try {
+            console.log('🔍 Testing server connection...');
+            const response = await axios.get('http://localhost:3000/api/test');
+            console.log('✅ Server test response:', response.data);
+            setStatusMessage('Server is reachable!');
+            setTimeout(() => setStatusMessage(''), 3000);
+        } catch (error) {
+            console.error('❌ Server test failed:', error);
+            setStatusMessage('Server is not reachable. Check if server is running on port 3000');
+            setTimeout(() => setStatusMessage(''), 5000);
+        }
+    };
+
+    // Check what users exist in database
+    const checkUsers = async () => {
+        try {
+            console.log('🔍 Checking users in database...');
+            const response = await axios.get('http://localhost:3000/api/debug-users');
+            console.log('👥 Users in database:', response.data);
+            setStatusMessage(`Found ${response.data.count} users in database. Check console for details.`);
+            setTimeout(() => setStatusMessage(''), 5000);
+        } catch (error) {
+            console.error('❌ Failed to check users:', error);
+            setStatusMessage('Failed to check users in database');
+            setTimeout(() => setStatusMessage(''), 3000);
+        }
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setIsLoading(true);
+        setStatusMessage('');
+
+        console.log('🚀 Login attempt started');
+        console.log('📧 Email:', email);
+        console.log('🔐 Password:', password);
+
+        try {
             if (isLogin) {
-                console.log('Logged in with:', email, password)
+                console.log('📡 Sending login request...');
+                
+                const loginData = {
+                    email: email.trim(),
+                    password: password
+                };
+                
+                console.log('📦 Login data:', loginData);
+                
+                const res = await axios.post('http://localhost:3000/api/login', loginData, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    timeout: 10000 // 10 second timeout
+                });
+                
+                console.log('✅ Login response:', res.data);
+
+                const { token, role, user } = res.data;
+
+                if (!token) {
+                    throw new Error('No token received from server');
+                }
+
+                // Store token in localStorage
+                localStorage.setItem('token', token);
+                localStorage.setItem('user', JSON.stringify(user));
+
+                setStatusMessage(`Login successful! Welcome ${user.email}. Redirecting...`);
+                
+                // Redirect based on role
+                setTimeout(() => {
+                    if (role === 'admin') {
+                        console.log('🔀 Redirecting to admin dashboard...');
+                        window.location.href = '/Admin-Dashboard';
+                    } else if (role === 'employee') {
+                        console.log('🔀 Redirecting to employee dashboard...');
+                        window.location.href = '/Employee-Dashboard';
+                    } else {
+                        console.log('⚠️ Unknown role:', role);
+                        setStatusMessage(`Unknown role: ${role}`);
+                    }
+                }, 2000);
+
+            // Replace the signup section in your handleSubmit function with this:
+
             } else {
-                console.log('Signed up with:', fullName, email, password)
+                // SIGNUP logic
+                console.log('📝 Signup attempt:', { fullName, email, password, confirmPassword });
+
+                if (password !== confirmPassword) {
+                    setStatusMessage('Passwords do not match!');
+                    return;
+                }
+            
+                if (password.length < 6) {
+                    setStatusMessage('Password must be at least 6 characters long!');
+                    return;
+                }
+            
+                try {
+                    const signupData = {
+                        fullName: fullName.trim(),
+                        email: email.trim(),
+                        password: password,
+                        role: 'employee' // Default role, or you can add a role selector
+                    };
+                
+                    console.log('📦 Signup data:', signupData);
+                
+                    // Step 1: Register the user
+                    const signupResponse = await axios.post('http://localhost:3000/api/register', signupData, {
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        timeout: 10000
+                    });
+                
+                    console.log('✅ Signup response:', signupResponse.data);
+                
+                    // Register endpoint returns token directly
+                    const { token, user, role } = signupResponse.data;
+
+                    if (!token) {
+                        throw new Error('No token received from server');
+                    }
+
+                    // Store token and user data
+                    localStorage.setItem('token', token);
+                    localStorage.setItem('user', JSON.stringify(user));
+
+                    setStatusMessage(`Account created successfully! Welcome ${user.fullName || user.email}. Redirecting...`);
+
+                    // Redirect based on role
+                    setTimeout(() => {
+                        if (role === 'admin') {
+                            window.location.href = '/Admin-Dashboard';
+                        } else if (role === 'employee') {
+                            window.location.href = '/Employee-Dashboard';
+                        } else {
+                            setStatusMessage(`Unknown role: ${role}`);
+                        }
+                    }, 2000);
+                
+                } catch (signupError) {
+                    console.error('💥 Signup error:', signupError);
+
+                    let errorMessage = 'Signup failed';
+
+                    if (signupError.response) {
+                        console.log('📊 Signup error response:', signupError.response.data);
+                        console.log('📊 Signup error status:', signupError.response.status);
+
+                        if (signupError.response.status === 409) {
+                            errorMessage = 'User already exists with this email address';
+                        } else {
+                            errorMessage = signupError.response.data.msg || 
+                                         signupError.response.data.error || 
+                                         `Server error: ${signupError.response.status}`;
+                        }
+                    } else if (signupError.request) {
+                        errorMessage = 'No response from server. Check your network connection.';
+                    } else {
+                        errorMessage = signupError.message;
+                    }
+
+                    setStatusMessage(errorMessage);
+                }
             }
-        }, 2000)
-    }
+            } catch (err) {
+            console.error('💥 Login error:', err);
+            
+            let errorMessage = 'Login failed';
+            
+            if (err.code === 'ECONNREFUSED' || err.code === 'ENOTFOUND') {
+                errorMessage = 'Cannot connect to server. Make sure the server is running on port 3000.';
+            } else if (err.code === 'ECONNABORTED') {
+                errorMessage = 'Request timeout. Server is taking too long to respond.';
+            } else if (err.response) {
+                // Server responded with error status
+                console.log('📊 Error response:', err.response.data);
+                console.log('📊 Error status:', err.response.status);
+                errorMessage = err.response.data.msg || err.response.data.error || `Server error: ${err.response.status}`;
+            } else if (err.request) {
+                // Request was made but no response received
+                console.log('📡 No response received:', err.request);
+                errorMessage = 'No response from server. Check your network connection.';
+            } else {
+                // Something else happened
+                console.log('❓ Unknown error:', err.message);
+                errorMessage = err.message;
+            }
+            
+            setStatusMessage(errorMessage);
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     const handleSocialLogin = async (provider) => {
         setIsLoading(true);
@@ -34,20 +221,9 @@ function LoginPage() {
             // Simulate checking if user exists
             await new Promise((res) => setTimeout(res, 1500));
             
-            // Simulate random user existence check (30% chance of existing account)
-            const userExists = Math.random() > 0.7;
-            
-            if (userExists) {
-                setStatusMessage(`Welcome back! Signing you in with ${provider}...`);
-                await new Promise((res) => setTimeout(res, 1000));
-                console.log(`${provider} login successful`);
-                setStatusMessage('');
-            } else {
-                setStatusMessage(`No account found. Let's create one for you!`);
-                await new Promise((res) => setTimeout(res, 1000));
-                setIsLogin(false);
-                setStatusMessage('');
-            }
+            // For now, just show a message that social login isn't implemented
+            setStatusMessage(`${provider} integration not implemented yet. Use email/password login.`);
+            setTimeout(() => setStatusMessage(''), 3000);
         } catch (err) {
             console.error(err);
             setStatusMessage('Something went wrong. Please try again.');
@@ -72,6 +248,12 @@ function LoginPage() {
         resetForm();
     };
 
+    // Quick fill for testing (remove in production)
+    const fillTestData = () => {
+        setEmail('admin@example.com');
+        setPassword('admin123');
+    };
+
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex">
             {/* Left side - Branding */}
@@ -90,7 +272,7 @@ function LoginPage() {
                             <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center mr-4">
                                 <Building className="w-6 h-6 text-blue-600" />
                             </div>
-                            <h1 className="text-2xl font-bold">EmpManager Pro</h1>
+                            <h1 className="text-2xl font-bold">FlowDash</h1>
                         </div>
                         <h2 className="text-4xl font-bold mb-6 leading-tight">
                             Streamline Your<br />
@@ -124,7 +306,7 @@ function LoginPage() {
                         <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center mr-3">
                             <Building className="w-5 h-5 text-white" />
                         </div>
-                        <h1 className="text-xl font-bold text-gray-800">EmpManager Pro</h1>
+                        <h1 className="text-xl font-bold text-gray-800">FlowDash</h1>
                     </div>
 
                     {/* Login form container */}
@@ -142,17 +324,50 @@ function LoginPage() {
                             </p>
                         </div>
 
+                        {/* Debug buttons - remove in production */}
+                        <div className="mb-4 space-y-2">
+                            <div className="flex space-x-2">
+                                <button 
+                                    type="button" 
+                                    onClick={testConnection}
+                                    className="flex-1 bg-gray-100 text-gray-700 py-2 px-3 rounded-lg hover:bg-gray-200 transition-colors text-xs"
+                                >
+                                    Test Server
+                                </button>
+                                <button 
+                                    type="button" 
+                                    onClick={checkUsers}
+                                    className="flex-1 bg-gray-100 text-gray-700 py-2 px-3 rounded-lg hover:bg-gray-200 transition-colors text-xs"
+                                >
+                                    Check Users
+                                </button>
+                                <button 
+                                    type="button" 
+                                    onClick={fillTestData}
+                                    className="flex-1 bg-green-100 text-green-700 py-2 px-3 rounded-lg hover:bg-green-200 transition-colors text-xs"
+                                >
+                                    Fill Test Data
+                                </button>
+                            </div>
+                        </div>
+
                         {/* Status Message */}
                         {statusMessage && (
                             <div className="text-center mb-6">
-                                <p className="text-gray-700 text-sm bg-blue-50 rounded-lg py-2 px-4 border border-blue-200">
+                                <p className={`text-sm rounded-lg py-3 px-4 border ${
+                                    statusMessage.includes('successful') || statusMessage.includes('Welcome') || statusMessage.includes('reachable')
+                                        ? 'bg-green-50 text-green-700 border-green-200'
+                                        : statusMessage.includes('Failed') || statusMessage.includes('error') || statusMessage.includes('not')
+                                        ? 'bg-red-50 text-red-700 border-red-200'
+                                        : 'bg-blue-50 text-blue-700 border-blue-200'
+                                }`}>
                                     {statusMessage}
                                 </p>
                             </div>
                         )}
 
                         {/* Form */}
-                        <div className="space-y-6">
+                        <form onSubmit={handleSubmit} className="space-y-6">
                             {/* Full Name field (only for signup) */}
                             {!isLogin && (
                                 <div>
@@ -167,7 +382,7 @@ function LoginPage() {
                                             onChange={(e) => setFullName(e.target.value)}
                                             className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-gray-50 text-gray-800 placeholder-gray-500"
                                             placeholder="Enter your full name"
-                                            required
+                                            required={!isLogin}
                                         />
                                     </div>
                                 </div>
@@ -230,7 +445,7 @@ function LoginPage() {
                                             onChange={(e) => setConfirmPassword(e.target.value)}
                                             className="w-full pl-12 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-gray-50 text-gray-800 placeholder-gray-500"
                                             placeholder="Confirm your password"
-                                            required
+                                            required={!isLogin}
                                         />
                                         <button
                                             type="button"
@@ -254,7 +469,7 @@ function LoginPage() {
 
                             {/* Submit Button */}
                             <button
-                                onClick={handleSubmit}
+                                type="submit"
                                 disabled={isLoading}
                                 className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
                             >
@@ -267,7 +482,7 @@ function LoginPage() {
                                     isLogin ? 'Sign In' : 'Create Account'
                                 )}
                             </button>
-                        </div>
+                        </form>
 
                         {/* OR Divider */}
                         <div className="my-8 flex items-center">

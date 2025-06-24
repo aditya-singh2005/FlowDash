@@ -10,7 +10,7 @@ import Calendar from './Charts/Calendar'
 import TaskCompletionStatus from './Charts/TaskCompletionStatus';
 import TaskAlertConvo from './Charts/TaskAlertConvo';
 import Navbar from './Navbar';
-import { Smartphone, MessageCircle, Settings, Users, UserCircle, UsersRound, UserCheck, CalendarClock, ChartColumn } from 'lucide-react';
+import { Smartphone, MessageCircle, Settings, Users, UserCheck, CalendarClock, ChartColumn } from 'lucide-react';
 
 function AdminDashboard() {
     return (

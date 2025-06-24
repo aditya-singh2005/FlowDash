@@ -13,29 +13,74 @@ import {
   MessageSquare,
   BookOpen
 } from 'lucide-react';
-import axios from 'axios';
 
 const EmployeeSidebar = () => {
   const [activeItem, setActiveItem] = useState('Dashboard');
   const [employeeData, setEmployeeData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
   const location = useLocation();
   const isProfileActive = location.pathname === '/Employee-Profile';
   
   useEffect(() => {
-    fetchEmployeeDetails('Gracie Hamilton');
+    fetchEmployeeDetails();
   }, [])
 
-  const fetchEmployeeDetails = async (employeeName) => {
-        try{
-            const response = await axios.get(`http://localhost:3000/api/employee-details?name=${encodeURIComponent(employeeName)}`);
-            
-            const data = response.data;
-            setEmployeeData(data);
+  const fetchEmployeeDetails = async () => {
+    try {
+      setLoading(true);
+      
+      // Get token from localStorage
+      const token = localStorage.getItem('token');
+      console.log('Token from localStorage:', token ? 'Token exists' : 'No token found');
+      
+      if (!token) {
+        throw new Error('No authentication token found');
+      }
+
+      console.log('Making request to /api/employee-details...');
+      
+      // Fetch employee details using the token
+      const response = await fetch(`http://localhost:3000/api/employee-details`, {
+        method: 'GET',
+        headers: {
+          'Authorization': token,
+          'Content-Type': 'application/json'
         }
-        catch(err){
-            console.log("Error fetching employee details",err);
+      });
+      
+      console.log('Response status:', response.status);
+      console.log('Response ok:', response.ok);
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.log('Error response:', errorText);
+        
+        if (response.status === 401 || response.status === 403) {
+          localStorage.removeItem('token');
+          throw new Error('Authentication failed. Please login again.');
         }
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      console.log('Received data:', data);
+      console.log('Employee name from data:', data?.emp_name);
+      
+      setEmployeeData(data);
+      setError(null);
+    } catch (error) {
+      console.error("Error fetching employee details", error);
+      setError(error.message);
+      
+      // If authentication error, you might want to redirect to login
+      if (error.message.includes('Authentication failed') || error.message.includes('No authentication token')) {
+        window.location.href = '/login';
+      }
+    } finally {
+      setLoading(false);
+    }
   }
 
   const menuItems = [
@@ -109,8 +154,13 @@ const EmployeeSidebar = () => {
     console.log('Navigating to: /Employee-Profile');
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    navigate('/');
+  };
+
   return (
-    <div className="nav h-screen fixed top-0 left-0 bg-white w-80 shadow-2xl border-r border-slate-200/50 flex flex-col">
+    <div className="nav h-screen fixed top-0 left-0 bg-blue-100 w-80 shadow-2xl border-r border-slate-200/50 flex flex-col">
       {/* Header Section */}
       <div className="p-4 bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 border-b border-blue-600">
         <div className="flex items-center gap-4">
@@ -118,53 +168,83 @@ const EmployeeSidebar = () => {
             <User className="w-7 h-7 text-blue-700" />
           </div>
           <div>
-            <h1 className="text-white font-bold text-xl tracking-tight">Employee Portal</h1>
-            <p className="text-blue-100 text-sm font-medium">Your Workspace Hub</p>
+            <h1 className="text-white font-bold text-xl tracking-tight">FlowDash </h1>
+            <p className="text-blue-100 text-sm font-medium">Streamline Your Workforce</p>
           </div>
         </div>
       </div>
 
       {/* User Profile Section */}
-      <div className="p-4 bg-slate-50 border-b border-slate-200">
+      <div className="p-4 bg-blue-100 border-b-1 border-slate-300 shadow-2xl">
         <div 
-  onClick={handleProfileClick}
-  className={`flex items-center gap-3 p-3 group cursor-pointer rounded-lg border transition-all duration-300
-    ${isProfileActive 
-      ? 'bg-gradient-to-r from-blue-600 to-indigo-700 border-blue-700 shadow-md scale-[1.02]' 
-      : 'bg-white border-slate-200 hover:bg-slate-50 hover:shadow-lg'
-    }`}
->
-  <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors
-    ${isProfileActive 
-      ? 'bg-white/20' 
-      : 'bg-gradient-to-br from-blue-500 to-blue-600'
-    }`}
-  >
-    <div className='w-full h-full rounded-full overflow-hidden border-1 border-slate-200 shadow-xl'>
-      <img  className='w-full h-full object-cover' src={employeeData?.profile_url || 'Img Not Found'}></img>
-    </div>
-  </div>
+          onClick={handleProfileClick}
+          className={`flex items-center gap-3 p-3 group cursor-pointer rounded-lg border transition-all duration-300
+            ${isProfileActive 
+              ? 'bg-gradient-to-r from-blue-600 to-indigo-700 border-blue-700 shadow-md scale-[1.02]' 
+              : 'border-slate-200 bg-white/90 hover:bg-slate-50 hover:scale-102 hover:shadow-lg'
+            }`}
+        >
+          <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors
+            ${isProfileActive 
+              ? 'bg-white/20' 
+              : 'bg-gradient-to-br from-blue-500 to-blue-600'
+            }`}
+          >
+            <div className='w-full h-full rounded-full overflow-hidden border-1 border-slate-200 shadow-xl'>
+              {loading ? (
+                <div className="w-full h-full bg-gray-200 animate-pulse rounded-full"></div>
+              ) : error ? (
+                <User className="w-6 h-6 text-white" />
+              ) : (
+                <img 
+                  className='w-full h-full object-cover' 
+                  src={employeeData?.profile_url || "https://t3.ftcdn.net/jpg/06/19/26/46/360_F_619264680_x2PBdGLF54sFe7kTBtAvZnPyXgvaRw0Y.jpg"}
+                  alt={employeeData?.emp_name || 'Employee'}
+                  onError={(e) => {
+                    e.target.style.display = 'none';
+                    e.target.nextSibling.style.display = 'flex';
+                  }}
+                />
+              )}
+              <div className="w-full h-full bg-gradient-to-br from-blue-500 to-blue-600 rounded-full items-center justify-center hidden">
+                <User className="w-6 h-6 text-white" />
+              </div>
+            </div>
+          </div>
 
-  <div className="flex-1">
-    <p className={`font-semibold text-sm 
-      ${isProfileActive ? 'text-white' : 'text-slate-800'}`}>
-      {employeeData?.emp_name || `Not Found`}
-    </p>
-    <p className={`text-xs 
-      ${isProfileActive ? 'text-blue-100' : 'text-slate-500 group-hover:text-slate-900'}`}>
-      {employeeData?.department || `Not Found`}
-    </p>
-    <p className={`text-xs font-medium 
-      ${isProfileActive ? 'text-emerald-300' : 'text-emerald-600 group-hover:text-emerald-500'}`}>
-      ● Online
-    </p>
-  </div>
-</div>
-
+          <div className="flex-1">
+            <p className={`font-semibold text-sm 
+              ${isProfileActive ? 'text-white' : 'text-slate-800'}`}>
+              {loading ? (
+                <span className="animate-pulse bg-gray-300 h-4 w-24 rounded block"></span>
+              ) : error ? (
+                'Login Required'
+              ) : (
+                employeeData?.emp_name || 'Not Found'
+              )}
+            </p>
+            <p className={`text-xs 
+              ${isProfileActive ? 'text-blue-100' : 'text-slate-500 group-hover:text-slate-900'}`}>
+              {loading ? (
+                <span className="animate-pulse bg-gray-300 h-3 w-16 rounded block mt-1"></span>
+              ) : error ? (
+                'Please login'
+              ) : (
+                employeeData?.department || employeeData?.role || 'Not Found'
+              )}
+            </p>
+            <p className={`text-xs font-medium 
+              ${isProfileActive ? 'text-emerald-300' : 'text-emerald-600 group-hover:text-emerald-500'}`}>
+              {!error && !loading && '● Online'}
+              {error && '● Offline'}
+              {loading && '● Loading...'}
+            </p>
+          </div>
+        </div>
       </div>
 
       {/* Navigation Menu */}
-      <nav className="flex-1 p-4 overflow-y-auto">
+      <nav className="flex-1 p-4 overflow-y-auto bg-blue-100">
         <div className="space-y-2">
           {menuItems.map((item) => {
             const Icon = item.icon;
@@ -175,10 +255,10 @@ const EmployeeSidebar = () => {
                 key={item.id}
                 onClick={() => handleMenuClick(item.id, item.path)}
                 className={`
-                  group relative flex items-center gap-4 p-4 rounded-xl cursor-pointer transition-all duration-200 
+                  group relative flex items-center gap-4 p-4 border border-white shadow-lg rounded-xl cursor-pointer transition-all duration-200 
                   ${isActive 
                     ? 'bg-gradient-to-r from-blue-600 to-indigo-800 text-white shadow-lg shadow-blue-600/25 transform scale-[1.02]' 
-                    : 'text-slate-600 hover:bg-slate-50 hover:text-slate-800 hover:shadow-md'
+                    : 'text-slate-600 bg-white hover:bg-gradient-to-r from-blue-300 to-indigo-500 hover:text-slate-800 hover:shadow-md'
                   }
                 `}
               >
@@ -196,7 +276,7 @@ const EmployeeSidebar = () => {
                   <p className={`font-semibold text-sm ${isActive ? 'text-white' : 'text-slate-700 group-hover:text-slate-800'}`}>
                     {item.label}
                   </p>
-                  <p className={`text-xs truncate ${isActive ? 'text-blue-100' : 'text-slate-500 group-hover:text-slate-600'}`}>
+                  <p className={`text-xs truncate ${isActive ? 'text-blue-100' : 'text-slate-500 group-hover:text-slate-900'}`}>
                     {item.description}
                   </p>
                 </div>
@@ -219,33 +299,11 @@ const EmployeeSidebar = () => {
       </nav>
 
       {/* Footer Section */}
-      <div className="p-4 border-t border-slate-200 bg-slate-50">
-        {/* Today's Summary */}
-        <div className="mb-4 p-3 bg-white rounded-lg border border-slate-200">
-          <h3 className="text-sm font-semibold text-slate-700 mb-1">Today's Summary</h3>
-          <div className="grid grid-cols-2 gap-3 text-center">
-            <div>
-              <p className="text-lg font-bold text-blue-600">8.5h</p>
-              <p className="text-xs text-slate-500">Hours Logged</p>
-            </div>
-            <div>
-              <p className="text-lg font-bold text-emerald-600">3/5</p>
-              <p className="text-xs text-slate-500">Tasks Done</p>
-            </div>
-          </div>
-          <div className=" pt-2 border-t border-slate-100">
-            <div className="flex justify-between items-center">
-              <span className="text-xs text-slate-500">This Week Progress</span>
-              <span className="text-xs font-medium text-slate-700">85%</span>
-            </div>
-            <div className="w-full bg-slate-200 rounded-full h-1.5 mt-1">
-              <div className="bg-gradient-to-r from-blue-500 to-emerald-500 h-1.5 rounded-full" style={{width: '85%'}}></div>
-            </div>
-          </div>
-        </div>
-
-        {/* Logout Button */}
-        <button className="w-full flex items-center gap-3 p-3 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-all duration-200 group">
+      <div className="p-3 border-t border-slate-300 bg-blue-100">
+        <button 
+          onClick={handleLogout}
+          className="w-full flex items-center gap-3 p-3 border border-slate-300 bg-white text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-all duration-200 group"
+        >
           <div className="w-10 h-10 bg-red-100 group-hover:bg-red-200 rounded-lg flex items-center justify-center transition-colors duration-200">
             <LogOut className="w-5 h-5" />
           </div>

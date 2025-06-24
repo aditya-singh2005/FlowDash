@@ -14,7 +14,7 @@ function EmpTaskManagement() {
     });
 
     // Mock employee data - in real app, get from auth context
-    const currentEmployee = "John Smith"; // This should come from authentication
+    const currentEmployee = "Khushi"; // This should come from authentication
 
     useEffect(() => {
         fetchEmployeeTasks();
@@ -22,11 +22,21 @@ function EmpTaskManagement() {
 
     const fetchEmployeeTasks = async () => {
         try {
-            const res = await axios.get('http://localhost:3000/api/get-tasks');
+            const token = localStorage.getItem('token')
+            
+            if(!token){
+                console.log(`No token found!`);
+                return;
+            }
+
+            const res = await axios.get('http://localhost:3000/api/get-tasks', {
+                headers : {
+                    Authorization: token
+                }
+            });
             // Filter tasks for current employee
-            const employeeTasks = res.data.tasks.filter(task => 
-                task.emp_name === currentEmployee
-            );
+            console.log(res.data)
+            const employeeTasks = res.data;
             setTasks(employeeTasks);
             calculateStats(employeeTasks);
             console.log('Employee tasks:', employeeTasks);
@@ -39,21 +49,31 @@ function EmpTaskManagement() {
         const stats = {
             total: tasks.length,
             pending: tasks.filter(task => task.status === 'pending' || !task.status).length,
-            inProgress: tasks.filter(task => task.status === 'in-progress').length,
+            inProgress: tasks.filter(task => task.status === 'in progress').length,
             completed: tasks.filter(task => task.status === 'completed').length
         };
         setTaskStats(stats);
     };
 
-    const updateTaskStatus = async (taskId, newStatus) => {
+    const updateTaskStatus = async (id, newStatus) => {
         try {
-            await axios.put(`http://localhost:3000/api/tasks/${taskId}/status`, {
+            const token = localStorage.getItem('token')
+            if(!token){
+                console.log(`No token found`)
+                return;
+            }
+
+            await axios.put(`http://localhost:3000/api/tasks/${id}/status`, {
                 status: newStatus
+            },{
+                headers: {
+                    Authorization : token 
+                }
             });
             
             setTasks(prevTasks => 
                 prevTasks.map(task => 
-                    task.id === taskId ? { ...task, status: newStatus } : task
+                    task.id === id ? { ...task, status: newStatus } : task
                 )
             );
             
@@ -88,7 +108,7 @@ function EmpTaskManagement() {
     const getStatusColor = (status) => {
         switch(status) {
             case 'completed': return 'bg-green-100 text-green-800 border-green-200';
-            case 'in-progress': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+            case 'in progress': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
             case 'pending':
             default: return 'bg-red-100 text-red-800 border-red-200';
         }
@@ -120,7 +140,7 @@ function EmpTaskManagement() {
     const filteredTasks = tasks.filter(task => {
         if (filter === 'all') return true;
         if (filter === 'pending') return task.status === 'pending' || !task.status;
-        if (filter === 'in-progress') return task.status === 'in-progress';
+        if (filter === 'in progress') return task.status === 'in progress';
         if (filter === 'completed') return task.status === 'completed';
         return true;
     });
@@ -220,9 +240,9 @@ function EmpTaskManagement() {
                                     Pending ({taskStats.pending})
                                 </button>
                                 <button
-                                    onClick={() => setFilter('in-progress')}
+                                    onClick={() => setFilter('in progress')}
                                     className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
-                                        filter === 'in-progress' 
+                                        filter === 'in progress' 
                                             ? 'bg-yellow-600 text-white shadow-lg' 
                                             : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                                     }`}
@@ -360,7 +380,7 @@ function EmpTaskManagement() {
                                                                     className="text-xs border border-gray-300 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                                                 >
                                                                     <option value="pending">Pending</option>
-                                                                    <option value="in-progress">In Progress</option>
+                                                                    <option value="in progress">In Progress</option>
                                                                     <option value="completed">Completed</option>
                                                                 </select>
                                                             </td>

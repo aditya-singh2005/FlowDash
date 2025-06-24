@@ -4,33 +4,72 @@ import axios from 'axios';
 import EmpNavbar from "./EmpNavbar"
 
 function EmpProfilePage() {
-    // Sample employee data - replace with real data
     const [employeeData, setEmployeeData] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
-        fetchEmployeeDetails('Gracie Hamilton');
-    },[])
-    
-    useEffect( () => {
-        if(employeeData){
-            console.log(employeeData)
-        }
-    },[employeeData])
+        const fetchEmployeeDetails = async () => {
+            try {
+                setLoading(true);
+                
+                // Get token from localStorage
+                const token = localStorage.getItem('token');
+                console.log('Token from localStorage:', token ? 'Token exists' : 'No token found');
+                
+                if (!token) {
+                    throw new Error('No authentication token found');
+                }
 
-    const fetchEmployeeDetails = async (employeeName) => {
-        try{
-            const response = await axios.get(`http://localhost:3000/api/employee-details?name=${encodeURIComponent(employeeName)}`);
-            
-            const data = response.data;
-            setEmployeeData(data);
-        }
-        catch(err){
-            console.log("Error fetching employee details",err);
-        }
-    }
+                console.log('Making request to /api/employee-details...');
+                
+                // Fetch employee details using the token
+                const response = await fetch(`http://localhost:3000/api/employee-details`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': token,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                console.log('Response status:', response.status);
+                console.log('Response ok:', response.ok);
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.log('Error response:', errorText);
+                    
+                    if (response.status === 401 || response.status === 403) {
+                        localStorage.removeItem('token');
+                        throw new Error('Authentication failed. Please login again.');
+                    }
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                console.log('Received data:', data);
+                console.log('Employee name from data:', data?.emp_name);
+                
+                setEmployeeData(data);
+                setError(null);
+            } catch (error) {
+                console.error("Error fetching employee:", error);
+                setError(error.message);
+                
+                // If authentication error, you might want to redirect to login
+                if (error.message.includes('Authentication failed') || error.message.includes('No authentication token')) {
+                    window.location.href = '/';
+                }
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchEmployeeDetails();
+    }, []);
 
     const yearsAtCompany = () => {
-        if (!employeeData?.date_of_joining) return "NA";
+        if (!employeeData?.date_of_joining) return "N/A";
 
         const joiningDate = new Date(employeeData.date_of_joining);
         const currentDate = new Date();
@@ -40,20 +79,6 @@ function EmpProfilePage() {
 
         return diffInYears.toFixed(1);
     };
-
-
-    const employee = {
-        id: "EMP001",
-        name: "Sarah Johnson",
-        department: "Software Engineering",
-        email: "sarah.johnson@company.com",
-        phone: "+1 (555) 123-4567",
-        dateOfJoining: "January 15, 2022",
-        location: "New York, NY",
-        profileImage: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=400&h=400&fit=crop&crop=face",
-        position: "Senior Software Engineer",
-        employmentType: "Full-time"
-    }
 
     const InfoCard = ({ icon: Icon, label, value, colorClass = "text-blue-600" }) => (
         <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300 group">
@@ -69,6 +94,41 @@ function EmpProfilePage() {
         </div>
     )
 
+    if (loading) {
+        return (
+            <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+                <EmpNavbar />
+                <div className="max-w-7xl ml-[20%] px-4 sm:px-6 lg:px-8 py-8 flex items-center justify-center">
+                    <div className="text-center">
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                        <p className="text-gray-600">Loading employee profile...</p>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+                <EmpNavbar />
+                <div className="max-w-7xl ml-[20%] px-4 sm:px-6 lg:px-8 py-8 flex items-center justify-center">
+                    <div className="text-center text-red-600">
+                        <p className="text-lg font-semibold mb-4">Error loading profile: {error}</p>
+                        {error.includes('Authentication failed') && (
+                            <button 
+                                onClick={() => window.location.href = '/'}
+                                className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                            >
+                                Go to Login
+                            </button>
+                        )}
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
             <EmpNavbar />
@@ -77,23 +137,27 @@ function EmpProfilePage() {
                 {/* Header Section */}
                 <div className="bg-white rounded-2xl bg-gradient-to-tl from-slate-200 via-slate-100 to-slate-50 shadow-2xl overflow-hidden mb-8">
                     <div className="bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-800 h-32 sm:h-40"></div>
-                    <div className="px-6 sm:px-8 pb-8 ">
+                    <div className="px-6 sm:px-8 pb-8">
                         <div className="flex flex-col sm:flex-row items-center sm:items-end -mt-16 sm:-mt-20">
                             <div className="relative">
                                 <img
-                                    src={employeeData?.profile_url || 'Not Found'}
-                                    alt={employeeData?.emp_name || 'Not Found'}
+                                    src={employeeData?.profile_url || "https://t3.ftcdn.net/jpg/06/19/26/46/360_F_619264680_x2PBdGLF54sFe7kTBtAvZnPyXgvaRw0Y.jpg"}
+                                    alt={employeeData?.emp_name || 'Employee'}
                                     className="w-32 h-32 sm:w-40 sm:h-40 rounded-2xl border-4 border-white shadow-xl object-cover"
                                 />
                                 <div className="absolute -bottom-2 -right-2 bg-green-500 w-8 h-8 rounded-full border-4 border-white"></div>
                             </div>
                             
                             <div className="mt-4 sm:mt-0 sm:ml-8 text-center sm:text-left flex-1">
-                                <h1 className="text-3xl sm:text-4xl font-bold text-slate-100  mb-2">{employeeData?.emp_name || "NA"}</h1>
-                                <p className="text-xl font-semibold text-gray-600 mb-2">{employeeData?.department || "NA"}</p>
+                                <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-2">
+                                    {employeeData?.emp_name || "N/A"}
+                                </h1>
+                                <p className="text-xl font-semibold text-gray-600 mb-2">
+                                    {employeeData?.department || "N/A"}
+                                </p>
                                 <div className="flex flex-wrap justify-center sm:justify-start gap-3 mb-4">
                                     <span className="px-4 py-2 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
-                                        {employeeData?.role || "NA"}
+                                        {employeeData?.role || "N/A"}
                                     </span>
                                     <span className="px-4 py-2 bg-green-100 text-green-800 rounded-full text-sm font-medium">
                                         Active
@@ -114,44 +178,43 @@ function EmpProfilePage() {
                     <InfoCard 
                         icon={Badge} 
                         label="Employee ID" 
-                        value={employeeData?.emp_id || "Not Found"}
+                        value={employeeData?.id || employeeData?.emp_id || "N/A"}
                         colorClass="text-purple-600"
                     />
                     <InfoCard 
                         icon={Building2} 
                         label="Department" 
-                        value={employeeData?.department || `Not Found`}
+                        value={employeeData?.department || "N/A"}
                         colorClass="text-indigo-600"
                     />
                     <InfoCard 
                         icon={MapPin} 
                         label="Location" 
-                        value={employee?.location || `Not Found`}
+                        value="New York, NY"
                         colorClass="text-red-600"
                     />
                     <InfoCard 
                         icon={Mail} 
                         label="Email Address" 
-                        value={employeeData?.email || `Not Found`}
+                        value={employeeData?.email || "N/A"}
                         colorClass="text-blue-600"
                     />
                     <InfoCard 
                         icon={Phone} 
                         label="Phone Number" 
-                        value={employeeData?.phone || `Not Found`}
+                        value={employeeData?.phone || "N/A"}
                         colorClass="text-green-600"
                     />
                     <InfoCard 
                         icon={Calendar} 
                         label="Date of Joining" 
-                        value={employeeData?.date_of_joining ? new Date (employeeData.date_of_joining).toLocaleDateString("en-us", {
+                        value={employeeData?.date_of_joining ? new Date(employeeData.date_of_joining).toLocaleDateString("en-US", {
                             year: "numeric",
                             month: 'long',
                             day: 'numeric'
-                        }) : "Not Found"}
+                        }) : "N/A"}
                         colorClass="text-orange-600"
                     />
-                    
                 </div>
 
                 {/* Additional Sections */}
