@@ -251,7 +251,7 @@ function LoginPage() {
     // Quick fill for testing (remove in production)
     const fillTestData = () => {
         setEmail('admin@example.com');
-        setPassword('admin123');
+        setPassword('admin12345');
     };
 
     return (

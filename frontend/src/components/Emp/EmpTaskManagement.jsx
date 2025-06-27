@@ -13,8 +13,6 @@ function EmpTaskManagement() {
         completed: 0
     });
 
-    // Mock employee data - in real app, get from auth context
-    const currentEmployee = "Khushi"; // This should come from authentication
 
     useEffect(() => {
         fetchEmployeeTasks();
