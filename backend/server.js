@@ -20,8 +20,8 @@ app.use(cors({
         'http://localhost:3000', 
         'http://localhost:3001', 
         'http://localhost:5173',
-        'https://your-frontend-domain.com',  // Add your production frontend URL
-        'https://www.your-frontend-domain.com'
+        'http://localhost:5174',
+        'https://flowdash.onrender.com',  // Add your production frontend URL
     ],
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
