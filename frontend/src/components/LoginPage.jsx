@@ -13,11 +13,13 @@ function LoginPage() {
     const [isLoading, setIsLoading] = useState(false)
     const [statusMessage, setStatusMessage] = useState('')
 
+    const BASE_URl = "https://ems2-backend.onrender.com"
+
     // Test server connection
     const testConnection = async () => {
         try {
             console.log('🔍 Testing server connection...');
-            const response = await axios.get('http://localhost:3000/api/test');
+            const response = await axios.get(`${BASE_URl}/api/test`);
             console.log('✅ Server test response:', response.data);
             setStatusMessage('Server is reachable!');
             setTimeout(() => setStatusMessage(''), 3000);
@@ -32,7 +34,7 @@ function LoginPage() {
     const checkUsers = async () => {
         try {
             console.log('🔍 Checking users in database...');
-            const response = await axios.get('http://localhost:3000/api/debug-users');
+            const response = await axios.get(`${BASE_URl}/api/debug-users`);
             console.log('👥 Users in database:', response.data);
             setStatusMessage(`Found ${response.data.count} users in database. Check console for details.`);
             setTimeout(() => setStatusMessage(''), 5000);
@@ -63,7 +65,7 @@ function LoginPage() {
                 
                 console.log('📦 Login data:', loginData);
                 
-                const res = await axios.post('http://localhost:3000/api/login', loginData, {
+                const res = await axios.post(`${BASE_URl}/api/login`, loginData, {
                     headers: {
                         'Content-Type': 'application/json',
                     },
@@ -125,7 +127,7 @@ function LoginPage() {
                     console.log('📦 Signup data:', signupData);
                 
                     // Step 1: Register the user
-                    const signupResponse = await axios.post('http://localhost:3000/api/register', signupData, {
+                    const signupResponse = await axios.post(`${BASE_URl}/api/register`, signupData, {
                         headers: {
                             'Content-Type': 'application/json',
                         },
