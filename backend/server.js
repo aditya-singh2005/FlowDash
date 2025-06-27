@@ -10,16 +10,37 @@ dotenv.config()
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+connectDB();
 
 // Enhanced CORS configuration
 app.use(cors({
-    origin: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:5173', 'http://127.0.0.1:5173'],
+    origin: [
+        'http://localhost:3000', 
+        'http://localhost:3001', 
+        'http://localhost:5173',
+        'https://your-frontend-domain.com',  // Add your production frontend URL
+        'https://www.your-frontend-domain.com'
+    ],
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true
+}));
+app.use(express.json());
+
+
+app.use(cors({
+    origin: [
+        'http://localhost:3000', 
+        'http://localhost:3001', 
+        'http://localhost:5173',
+        'https://your-frontend-domain.com',  // Add your production frontend URL
+        'https://www.your-frontend-domain.com'
+    ],
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true
 }));
 
-app.use(express.json());
 
 // Debug middleware to log all requests
 app.use((req, res, next) => {
@@ -29,6 +50,7 @@ app.use((req, res, next) => {
     next();
 });
 
+
 app.use('/api', authRouter);
 
 // Test route to verify server is working
@@ -36,7 +58,6 @@ app.get('/api/test', (req, res) => {
     res.json({ message: 'Server is working!', timestamp: new Date().toISOString() });
 });
 
-connectDB();
 
 
 app.get('/api/employee-details', verifyToken, async (req, res) => {
@@ -259,9 +280,5 @@ app.use((err, req, res, next) => {
 
 app.listen(PORT, () => {
     console.log(`🚀 Server running on http://localhost:${PORT}`)
-    console.log(`📡 API endpoints available at:`)
-    console.log(`   - POST http://localhost:${PORT}/api/login`)
-    console.log(`   - GET  http://localhost:${PORT}/api/test`)
-    console.log(`   - POST http://localhost:${PORT}/api/tasks`)
     console.log(`🔧 Environment: ${process.env.NODE_ENV || 'development'}`)
 })
