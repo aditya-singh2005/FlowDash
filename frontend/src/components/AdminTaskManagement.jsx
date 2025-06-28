@@ -22,6 +22,8 @@ function AdminTaskManagement() {
     const [loadingEmployees, setLoadingEmployees] = useState(true);
     const [employeeError, setEmployeeError] = useState(null);
 
+    const BASE_URl = "https://ems2-backend.onrender.com"
+
     // Function to generate unique task ID
     const generateUniqueTaskId = () => {
         const timestamp = Date.now();
@@ -35,7 +37,7 @@ function AdminTaskManagement() {
             setLoadingEmployees(true);
             setEmployeeError(null);
             
-            const res = await axios.get('http://localhost:3000/api/employees');
+            const res = await axios.get(`${BASE_URl}/api/employees`);
             
             // Handle different possible response structures
             const employeeData = res.data.employees || res.data || [];
@@ -113,7 +115,7 @@ function AdminTaskManagement() {
 
     const fetchAllTasks = async () => {
         try {
-            const res = await axios.get('http://localhost:3000/api/get-tasks');
+            const res = await axios.get(`${BASE_URl}/api/get-tasks`);
             setTasks(res.data.tasks);
             console.log(res.data.tasks);
         } catch (err) {
@@ -137,7 +139,7 @@ function AdminTaskManagement() {
             };
             
             try {
-                const res = await axios.post('http://localhost:3000/api/tasks', newTask);
+                const res = await axios.post(`${BASE_URl}/api/tasks`, newTask);
                 setTasks(prev => [...prev, res.data.task]);
 
                 // Generate new task ID for next task
