@@ -11,7 +11,8 @@ import {
   Clock,
   Target,
   MessageSquare,
-  BookOpen
+  BookOpen,
+  Building2
 } from 'lucide-react';
 
 const EmpNavbar = () => {
@@ -158,7 +159,7 @@ const EmpNavbar = () => {
       <div className="p-4 bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 border-b border-blue-600">
         <div className="flex items-center gap-4">
           <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-lg">
-            <User className="w-7 h-7 text-blue-700" />
+            <Building2 className="w-7 h-7 text-blue-700" />
           </div>
           <div>
             <h1 className="text-white font-bold text-xl tracking-tight">FlowDash </h1>
