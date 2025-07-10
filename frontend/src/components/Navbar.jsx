@@ -28,6 +28,13 @@ const ProfessionalSidebar = () => {
       path: '/Admin-Dashboard'
     },
     {
+      id: 'Tasks',
+      label: 'Task Management',
+      icon: CheckSquare,
+      description: 'Project Assignments',
+      path: '/Admin-Task-Management'
+    },
+    {
       id: 'Employees',
       label: 'Employee List',
       icon: Users,
@@ -54,13 +61,6 @@ const ProfessionalSidebar = () => {
       icon: FileText,
       description: 'Requests & Approvals',
       path: '/admin-leaves-tracking'
-    },
-    {
-      id: 'Tasks',
-      label: 'Task Management',
-      icon: CheckSquare,
-      description: 'Project Assignments',
-      path: '/Admin-Task-Management'
     }
   ];
 

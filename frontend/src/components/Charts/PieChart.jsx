@@ -2,17 +2,18 @@ import React, { PureComponent } from 'react';
 import { PieChart, Pie, Sector, ResponsiveContainer } from 'recharts';
 
 const data = [
-{ name: 'HR', value: 400, fill: '#3B82F6' },
-{ name: 'Sales', value: 300, fill: '#10B981' },
-{ name: 'IT', value: 300, fill: '#8B5CF6' },
-{ name: 'Marketing', value: 200, fill: '#F59E0B' },
-{ name: 'Finance', value: 250, fill: '#EF4444' },
-{ name: 'Operations', value: 150, fill: '#06B6D4' },
-{ name: 'R&D', value: 180, fill: '#84CC16' },
-{ name: 'Support', value: 120, fill: '#F97316' },
-{ name: 'Legal', value: 100, fill: '#6366F1' },
-{ name: 'Admin', value: 90, fill: '#EC4899' },
+  { name: 'HR', value: 48, fill: '#3B82F6' },
+  { name: 'Sales', value: 36, fill: '#10B981' },
+  { name: 'IT', value: 36, fill: '#8B5CF6' },
+  { name: 'Marketing', value: 24, fill: '#F59E0B' },
+  { name: 'Finance', value: 30, fill: '#EF4444' },
+  { name: 'Operations', value: 18, fill: '#06B6D4' },
+  { name: 'R&D', value: 21, fill: '#84CC16' },
+  { name: 'Support', value: 14, fill: '#F97316' },
+  { name: 'Legal', value: 12, fill: '#6366F1' },
+  { name: 'Admin', value: 9, fill: '#EC4899' },
 ];
+
 
 const renderActiveShape = (props) => {
 const RADIAN = Math.PI / 180;

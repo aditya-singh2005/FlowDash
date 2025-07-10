@@ -1,7 +1,10 @@
 import React from 'react';
 import { Calendar, Clock, CheckCircle, AlertTriangle } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const TaskCompletionStatus = () => {
+
+  const navigate = useNavigate();
 
   const employees = [
     {
@@ -99,6 +102,10 @@ const TaskCompletionStatus = () => {
     }
   };
 
+  const handleclick = () => {
+    navigate('/Admin-Task-Management')
+  }
+
   return (
     <div class='section4 bg-gray-800 w-full mt-4 rounded-lg shadow-lg'>
         <div class='bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-800 w-full px-6 py-5 rounded-t-lg flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4'>
@@ -107,7 +114,10 @@ const TaskCompletionStatus = () => {
                 <p class='text-indigo-100 font-medium text-base'>Recent 5 Tasks Overview</p>
             </div>
             <div>
-                <button class='bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white border border-white/50 hover:border-white/30 px-6 py-2.5 rounded-lg font-semibold text-sm transition-all duration-200 shadow-sm hover:shadow-md flex items-center gap-2'>
+                <button 
+                class='bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white border border-white/50 hover:border-white/30 px-6 py-2.5 rounded-lg font-semibold text-sm transition-all duration-200 shadow-sm hover:shadow-md flex items-center gap-2'
+                onClick = {handleclick}
+                >
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                     </svg>

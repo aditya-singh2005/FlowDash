@@ -62,7 +62,7 @@ function AdminDashboard() {
                         <div className="bg-white rounded-3xl shadow-xl p-4 flex items-center justify-between text-left">
                             <div>
                                 <p className="font-bold text-lg">Total Employees</p>
-                                <p className="text-xl font-semibold text-blue-600">120</p>
+                                <p className="text-xl font-semibold text-blue-600">248</p>
                             </div>
                             <span className="text-4xl"><Users size={45} /></span>
                         </div>
@@ -119,7 +119,7 @@ function AdminDashboard() {
                                     Employee Distribution
                                 </h2>
                                 <p className='text-blue-100 text-sm font-medium mt-2 tracking-wide'>
-                                    Total Employees: 780
+                                    Total Employees: 248
                                 </p>
                             </div>
                             <div className='flex-grow overflow-hidden p-4'>
