@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { 
   LayoutDashboard, 
@@ -32,28 +32,28 @@ const ProfessionalSidebar = () => {
       label: 'Employee List',
       icon: Users,
       description: 'Manage Staff Records',
-      path: '/employees'
+      path: '/admin-employees-list'
     },
     {
       id: 'Department',
       label: 'Departments',
       icon: Building2,
       description: 'Organizational Structure',
-      path: '/departments'
+      path: '/admin-employee-departments'
     },
     {
       id: 'Attendance',
       label: 'Attendance Tracking',
       icon: Calendar,
       description: 'Time & Attendance',
-      path: '/attendance'
+      path: '/admin-attendance-tracking'
     },
     { 
       id: 'Leave',
       label: 'Leave Management',
       icon: FileText,
       description: 'Requests & Approvals',
-      path: '/leave'
+      path: '/admin-leaves-tracking'
     },
     {
       id: 'Tasks',
@@ -61,22 +61,22 @@ const ProfessionalSidebar = () => {
       icon: CheckSquare,
       description: 'Project Assignments',
       path: '/Admin-Task-Management'
-    },
-    {
-      id: 'Settings',
-      label: 'System Settings',
-      icon: Settings,
-      description: 'Configuration',
-      path: '/settings'
     }
   ];
+
+  // Update active item based on current route
+  useEffect(() => {
+    const currentMenuItem = menuItems.find(item => item.path === location.pathname);
+    if (currentMenuItem) {
+      setActiveItem(currentMenuItem.id);
+    }
+  }, [location.pathname]);
 
   const handleMenuClick = (itemId, path) => {
     setActiveItem(itemId);
     navigate(path);
     console.log(`Navigating to: ${path}`);
   };
-
 
   const handleLogout = () => {
     localStorage.removeItem('token');

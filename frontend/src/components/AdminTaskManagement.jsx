@@ -24,14 +24,12 @@ function AdminTaskManagement() {
 
     const BASE_URl = "https://ems2-backend.onrender.com"
 
-    // Function to generate unique task ID
     const generateUniqueTaskId = () => {
         const timestamp = Date.now();
         const randomNum = Math.floor(Math.random() * 1000);
         return `TASK-${String(timestamp).slice(-6)}${String(randomNum).padStart(3, '0')}`;
     };
 
-    // Function to fetch employees from API
     const fetchEmployees = async () => {
         try {
             setLoadingEmployees(true);
@@ -39,21 +37,17 @@ function AdminTaskManagement() {
             
             const res = await axios.get(`${BASE_URl}/api/employees`);
             
-            // Handle different possible response structures
             const employeeData = res.data.employees || res.data || [];
             
             if (Array.isArray(employeeData)) {
                 setEmployees(employeeData);
                 setFilteredEmployees(employeeData);
-                console.log('✅ Employees loaded successfully:', employeeData.length, 'employees');
             } else {
                 throw new Error('Invalid employee data format received');
             }
         } catch (err) {
-            console.error('❌ Failed to fetch employees:', err.message);
+            console.error('Failed to fetch employees:', err.message);
             setEmployeeError(err.message);
-            
-            // Fallback to empty array to prevent crashes
             setEmployees([]);
             setFilteredEmployees([]);
         } finally {
@@ -82,7 +76,6 @@ function AdminTaskManagement() {
             [name]: value
         }));
 
-        // Handle employee name search
         if (name === 'emp_name') {
             const filtered = employees.filter(emp => 
                 emp.emp_name.toLowerCase().includes(value.toLowerCase())
@@ -90,7 +83,6 @@ function AdminTaskManagement() {
             setFilteredEmployees(filtered);
             setShowEmployeeDropdown(value.length > 0);
             
-            // Clear emp_id and department if name doesn't match exactly
             const exactMatch = employees.find(emp => emp.emp_name === value);
             if (!exactMatch) {
                 setFormData(prev => ({
@@ -117,9 +109,8 @@ function AdminTaskManagement() {
         try {
             const res = await axios.get(`${BASE_URl}/api/get-tasks`);
             setTasks(res.data.tasks);
-            console.log(res.data.tasks);
         } catch (err) {
-            console.error('❌ Failed to fetch tasks:', err.message);
+            console.error('Failed to fetch tasks:', err.message);
         }
     };
 
@@ -142,7 +133,6 @@ function AdminTaskManagement() {
                 const res = await axios.post(`${BASE_URl}/api/tasks`, newTask);
                 setTasks(prev => [...prev, res.data.task]);
 
-                // Generate new task ID for next task
                 const newTaskId = generateUniqueTaskId();
                 
                 setFormData({
@@ -156,46 +146,35 @@ function AdminTaskManagement() {
                     status: 'new task'
                 });
 
-                alert('✅ Task assigned and saved to DB!');
+                alert('Task assigned successfully');
                 fetchAllTasks();
             } catch (err) {
-                console.error('❌ Failed to save task:', err.message);
-                alert('❌ Failed to assign task. Please try again.');
+                console.error('Failed to save task:', err.message);
+                alert('Failed to assign task. Please try again.');
             }
         } else {
-            alert('⚠️ Please fill in all fields');
-        }
-    };
-
-    const getTaskTagIcon = (tag) => {
-        switch(tag) {
-            case 'project': return '🚧';
-            case 'meeting': return '📅';
-            case 'support': return '🛠️';
-            case 'review': return '🔍';
-            case 'training': return '📚';
-            default: return '📋';
+            alert('Please fill in all required fields');
         }
     };
 
     const getTaskTagColor = (tag) => {
         switch(tag) {
-            case 'project': return 'bg-blue-100 text-blue-800 border-blue-200';
-            case 'meeting': return 'bg-green-100 text-green-800 border-green-200';
-            case 'support': return 'bg-orange-100 text-orange-800 border-orange-200';
-            case 'review': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-            case 'training': return 'bg-purple-100 text-purple-800 border-purple-200';
-            default: return 'bg-gray-100 text-gray-800 border-gray-200';
+            case 'project': return 'bg-blue-100 text-blue-800';
+            case 'meeting': return 'bg-green-100 text-green-800';
+            case 'support': return 'bg-orange-100 text-orange-800';
+            case 'review': return 'bg-yellow-100 text-yellow-800';
+            case 'training': return 'bg-purple-100 text-purple-800';
+            default: return 'bg-gray-100 text-gray-800';
         }
     };
 
     const getStatusColor = (status) => {
         switch(status) {
-            case 'new task': return 'bg-blue-100 text-blue-800 border-blue-200';
-            case 'in progress': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-            case 'pending': return 'bg-orange-100 text-orange-800 border-orange-200';
-            case 'completed': return 'bg-green-100 text-green-800 border-green-200';
-            default: return 'bg-gray-100 text-gray-800 border-gray-200';
+            case 'new task': return 'bg-blue-100 text-blue-800';
+            case 'in progress': return 'bg-yellow-100 text-yellow-800';
+            case 'pending': return 'bg-orange-100 text-orange-800';
+            case 'completed': return 'bg-green-100 text-green-800';
+            default: return 'bg-gray-100 text-gray-800';
         }
     };
 
@@ -203,15 +182,14 @@ function AdminTaskManagement() {
         const today = new Date();
         const due = new Date(dueDate);
         const diffTime = due - today;
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        return diffDays;
+        return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     };
 
     const getDueDateColor = (dueDate) => {
         const days = getDaysUntilDue(dueDate);
-        if (days < 0) return 'text-red-600 font-semibold';
-        if (days <= 3) return 'text-orange-600 font-semibold';
-        if (days <= 7) return 'text-yellow-600 font-medium';
+        if (days < 0) return 'text-red-600';
+        if (days <= 3) return 'text-orange-600';
+        if (days <= 7) return 'text-yellow-600';
         return 'text-gray-600';
     };
 
@@ -223,56 +201,61 @@ function AdminTaskManagement() {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+        <div className="min-h-screen bg-blue-100">
             <Navbar />
-            <div className='tasks-form min-h-screen w-[80%] flex justify-center ml-[20%]'>
-                <div className='w-[95%] mt-6 space-y-6'>
-                    
+            <div className="min-h-screen w-[80%] ml-[20%]">
+                <div className="w-[95%] mx-auto py-8 space-y-8">
                     {/* Header Section */}
-                    <div className='bg-white rounded-xl shadow-lg overflow-hidden'>
-                        <div className='bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-800 px-8 py-6'>
-                            <h1 className='text-3xl font-bold text-white flex items-center gap-3'>
-                                <span className="text-4xl">📋</span>
-                                Task Management Center
+                    <div className="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-xl shadow-sm border border-gray-200">
+                        <div className="px-8 py-6 border-b border-gray-200">
+                            <h1 className="text-2xl font-bold text-slate-100">
+                                Task Management
                             </h1>
-                            <p className='text-slate-50 mt-2'>Efficiently assign and track tasks across your organization</p>
+                            <p className="text-slate-200 mt-1">Manage and track employee tasks across departments</p>
                         </div>
                     </div>
 
                     {/* Employee Loading/Error States */}
                     {employeeError && (
-                        <div className='bg-red-50 border border-red-200 rounded-lg p-4'>
-                            <div className='flex items-center gap-2'>
-                                <span className='text-red-600 text-xl'>⚠️</span>
-                                <div>
-                                    <h3 className='text-red-800 font-semibold'>Error Loading Employees</h3>
-                                    <p className='text-red-700 text-sm'>{employeeError}</p>
-                                    <button 
-                                        onClick={fetchEmployees}
-                                        className='mt-2 text-red-600 hover:text-red-800 text-sm font-medium underline'
-                                    >
-                                        Try Again
-                                    </button>
+                        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                            <div className="flex items-start">
+                                <div className="flex-shrink-0">
+                                    <svg className="h-5 w-5 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                                    </svg>
+                                </div>
+                                <div className="ml-3">
+                                    <h3 className="text-sm font-medium text-red-800">Error Loading Employees</h3>
+                                    <div className="mt-2 text-sm text-red-700">
+                                        <p>{employeeError}</p>
+                                    </div>
+                                    <div className="mt-4">
+                                        <button
+                                            onClick={fetchEmployees}
+                                            className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                                        >
+                                            Retry
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     )}
 
                     {/* Task Assignment Form */}
-                    <div className='bg-white rounded-xl shadow-lg overflow-hidden'>
-                        <div className='bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-800 px-6 py-4'>
-                            <h2 className='text-xl font-semibold text-white flex items-center gap-2'>
-                                <span className='bg-slate-300 rounded-[50%] p-[2px]'>➕</span>
+                    <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+                        <div className="px-6 py-4 bg-gradient-to-r from-blue-600 to-indigo-700 border-b border-gray-200">
+                            <h2 className="text-lg font-medium text-slate-100">
                                 Assign New Task
                             </h2>
                         </div>
                         
-                        <form onSubmit={handleSubmit} className='p-8'>
-                            <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
-                                {/* Task ID Field - Read Only */}
-                                <div className="space-y-2">
-                                    <label htmlFor="task_id" className='block text-sm font-semibold text-gray-700'>
-                                        🔑 Task ID
+                        <form onSubmit={handleSubmit} className="p-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                {/* Task ID Field */}
+                                <div>
+                                    <label htmlFor="task_id" className="block text-sm font-medium text-gray-700">
+                                        Task ID
                                     </label>
                                     <input
                                         type="text"
@@ -280,17 +263,16 @@ function AdminTaskManagement() {
                                         name="task_id"
                                         value={formData.task_id}
                                         readOnly
-                                        className='w-full px-4 py-3 border-2 border-gray-200 rounded-lg bg-gray-50 text-gray-600 font-mono text-sm'
-                                        placeholder="Auto-generated unique ID"
+                                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-gray-50"
                                     />
                                 </div>
 
-                                {/* Employee Selection with Search */}
-                                <div className="space-y-2 relative">
-                                    <label htmlFor="emp_name" className='block text-sm font-semibold text-gray-700'>
-                                        👤 Employee Name
+                                {/* Employee Selection */}
+                                <div className="relative">
+                                    <label htmlFor="emp_name" className="block text-sm font-medium text-gray-700">
+                                        Employee
                                     </label>
-                                    <div className="relative">
+                                    <div className="mt-1 relative">
                                         <input
                                             type="text"
                                             id="emp_name"
@@ -302,87 +284,75 @@ function AdminTaskManagement() {
                                                     setShowEmployeeDropdown(true);
                                                 }
                                             }}
-                                            className='w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 hover:border-blue-300'
-                                            placeholder={loadingEmployees ? "Loading employees..." : "Search employee name..."}
+                                            className="block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                            placeholder={loadingEmployees ? "Loading..." : "Search employee"}
                                             required
                                             autoComplete="off"
                                             disabled={loadingEmployees}
                                         />
                                         {loadingEmployees && (
-                                            <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                                                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
+                                            <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                                <svg className="animate-spin h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                </svg>
                                             </div>
                                         )}
                                     </div>
                                     
                                     {/* Employee Dropdown */}
                                     {showEmployeeDropdown && filteredEmployees.length > 0 && (
-                                        <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-48 overflow-y-auto">
+                                        <div className="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm">
                                             {filteredEmployees.map((employee) => (
                                                 <div
                                                     key={employee.emp_id}
-                                                    className="px-4 py-3 hover:bg-blue-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+                                                    className="cursor-pointer select-none relative py-2 pl-3 pr-9 hover:bg-gray-50"
                                                     onClick={() => handleEmployeeSelect(employee)}
                                                 >
-                                                    <div className="flex items-center justify-between">
-                                                        <div>
-                                                            <div className="font-medium text-gray-900">{employee.emp_name}</div>
-                                                            <div className="text-sm text-gray-500">
-                                                                ID: {employee.emp_id} • {employee.department}
-                                                                {employee.role && ` • ${employee.role}`}
-                                                            </div>
-                                                            {employee.email && (
-                                                                <div className="text-xs text-gray-400">{employee.email}</div>
+                                                    <div className="flex items-center">
+                                                        <div className="flex-shrink-0 h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center">
+                                                            {employee.profile_url ? (
+                                                                <img className="h-8 w-8 rounded-full" src={employee.profile_url} alt="" />
+                                                            ) : (
+                                                                <span className="text-gray-600 text-sm font-medium">
+                                                                    {employee.emp_name.charAt(0).toUpperCase()}
+                                                                </span>
                                                             )}
                                                         </div>
-                                                        {employee.profile_url && (
-                                                            <div className="h-8 w-8 rounded-full overflow-hidden bg-gray-200">
-                                                                <img 
-                                                                    src={employee.profile_url} 
-                                                                    alt={employee.emp_name}
-                                                                    className="h-full w-full object-cover"
-                                                                    onError={(e) => {
-                                                                        e.target.style.display = 'none';
-                                                                    }}
-                                                                />
-                                                            </div>
-                                                        )}
+                                                        <div className="ml-3">
+                                                            <span className="font-medium text-gray-900 block truncate">
+                                                                {employee.emp_name}
+                                                            </span>
+                                                            <span className="text-gray-500 text-xs block">
+                                                                {employee.department} • ID: {employee.emp_id}
+                                                            </span>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             ))}
                                         </div>
                                     )}
-
-                                    {/* No employees found message */}
-                                    {showEmployeeDropdown && filteredEmployees.length === 0 && formData.emp_name && !loadingEmployees && (
-                                        <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg p-4">
-                                            <div className="text-gray-500 text-sm text-center">
-                                                No employees found matching "{formData.emp_name}"
-                                            </div>
-                                        </div>
-                                    )}
                                 </div>
 
-                                {/* Employee ID - Read Only */}
-                                <div className="space-y-2">
-                                    <label htmlFor="emp_id" className='block text-sm font-semibold text-gray-700'>
-                                        🆔 Employee ID
+                                {/* Employee ID */}
+                                <div>
+                                    <label htmlFor="emp_id" className="block text-sm font-medium text-gray-700">
+                                        Employee ID
                                     </label>
                                     <input
-                                        type="number"
+                                        type="text"
                                         id="emp_id"
                                         name="emp_id"
                                         value={formData.emp_id}
                                         readOnly
-                                        className='w-full px-4 py-3 border-2 border-gray-200 rounded-lg bg-gray-50 text-gray-600'
-                                        placeholder="Auto-filled from employee selection"
+                                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-gray-50"
                                     />
                                 </div>
 
-                                {/* Department - Auto-filled */}
-                                <div className="space-y-2">
-                                    <label htmlFor="department" className='block text-sm font-semibold text-gray-700'>
-                                        🏢 Department
+                                {/* Department */}
+                                <div>
+                                    <label htmlFor="department" className="block text-sm font-medium text-gray-700">
+                                        Department
                                     </label>
                                     <input
                                         type="text"
@@ -390,15 +360,14 @@ function AdminTaskManagement() {
                                         name="department"
                                         value={formData.department}
                                         readOnly
-                                        className='w-full px-4 py-3 border-2 border-gray-200 rounded-lg bg-gray-50 text-gray-600'
-                                        placeholder="Auto-filled from employee selection"
+                                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-gray-50"
                                     />
                                 </div>
 
                                 {/* Due Date */}
-                                <div className="space-y-2">
-                                    <label htmlFor="dueDate" className='block text-sm font-semibold text-gray-700'>
-                                        📅 Due Date
+                                <div>
+                                    <label htmlFor="dueDate" className="block text-sm font-medium text-gray-700">
+                                        Due Date
                                     </label>
                                     <input
                                         type="date"
@@ -406,57 +375,57 @@ function AdminTaskManagement() {
                                         name="dueDate"
                                         value={formData.dueDate}
                                         onChange={handleInputChange}
-                                        className='w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 hover:border-blue-300'
+                                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                                         required
                                     />
                                 </div>
 
-                                {/* Task Tags */}
-                                <div className="space-y-2">
-                                    <label htmlFor='taskTag' className='block text-sm font-semibold text-gray-700'>
-                                        🏷️ Task Tag
+                                {/* Task Tag */}
+                                <div>
+                                    <label htmlFor="taskTag" className="block text-sm font-medium text-gray-700">
+                                        Task Type
                                     </label>
                                     <select
-                                        id='taskTag'
-                                        name='taskTag'
+                                        id="taskTag"
+                                        name="taskTag"
                                         value={formData.taskTag}
                                         onChange={handleInputChange}
-                                        className='w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 hover:border-blue-300'
+                                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                                         required
                                     >
-                                        <option value="">Select Task Tag</option>
-                                        <option value="project">🚧 Project</option>
-                                        <option value="meeting">📅 Meeting</option>
-                                        <option value="support">🛠️ Support</option>
-                                        <option value="review">🔍 Review</option>
-                                        <option value="training">📚 Training</option>
+                                        <option value="">Select task type</option>
+                                        <option value="project">Project</option>
+                                        <option value="meeting">Meeting</option>
+                                        <option value="support">Support</option>
+                                        <option value="review">Review</option>
+                                        <option value="training">Training</option>
                                     </select>
                                 </div>
 
                                 {/* Status */}
-                                <div className="space-y-2">
-                                    <label htmlFor='status' className='block text-sm font-semibold text-gray-700'>
-                                        📊 Status
+                                <div>
+                                    <label htmlFor="status" className="block text-sm font-medium text-gray-700">
+                                        Status
                                     </label>
                                     <select
-                                        id='status'
-                                        name='status'
+                                        id="status"
+                                        name="status"
                                         value={formData.status}
                                         onChange={handleInputChange}
-                                        className='w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 hover:border-blue-300'
+                                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                                         required
                                     >
-                                        <option value="new task">🆕 New Task</option>
-                                        <option value="in progress">⏳ In Progress</option>
-                                        <option value="pending">⏸️ Pending</option>
-                                        <option value="completed">✅ Completed</option>
+                                        <option value="new task">New Task</option>
+                                        <option value="in progress">In Progress</option>
+                                        <option value="pending">Pending</option>
+                                        <option value="completed">Completed</option>
                                     </select>
                                 </div>
 
                                 {/* Task Description */}
-                                <div className='md:col-span-2 space-y-2'>
-                                    <label htmlFor="taskDescription" className='block text-sm font-semibold text-gray-700'>
-                                        📝 Task Description
+                                <div className="md:col-span-2">
+                                    <label htmlFor="taskDescription" className="block text-sm font-medium text-gray-700">
+                                        Task Description
                                     </label>
                                     <textarea
                                         id="taskDescription"
@@ -464,20 +433,20 @@ function AdminTaskManagement() {
                                         value={formData.taskDescription}
                                         onChange={handleInputChange}
                                         rows="4"
-                                        className='w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 hover:border-blue-300 resize-none'
-                                        placeholder="Enter detailed task description..."
+                                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                        placeholder="Provide detailed task description..."
                                         required
                                     />
                                 </div>
                             </div>
 
-                            <div className="flex justify-start mt-8">
+                            <div className="mt-8 flex justify-end">
                                 <button
                                     type="submit"
-                                    className='bg-gradient-to-br from-blue-600 to-blue-700 text-white font-semibold px-8 py-3 rounded-lg hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 transition-all duration-200 transform hover:scale-105 shadow-lg flex items-center gap-2'
+                                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                                     disabled={loadingEmployees}
                                 >
-                                    {loadingEmployees ? 'Loading...' : 'Assign Task'}
+                                    Assign Task
                                 </button>
                             </div>
                         </form>
@@ -485,36 +454,35 @@ function AdminTaskManagement() {
 
                     {/* Employee Stats Section */}
                     {!loadingEmployees && employees.length > 0 && (
-                        <div className='bg-white rounded-xl shadow-lg overflow-hidden'>
-                            <div className='bg-gradient-to-r from-green-600 to-teal-600 px-6 py-4'>
-                                <h3 className='text-lg font-semibold text-white flex items-center gap-2'>
-                                    <span>👥</span>
-                                    Employee Database
+                        <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+                            <div className="px-6 py-4 bg-gradient-to-r from-blue-600 to-indigo-700 border-b border-gray-200">
+                                <h3 className="text-lg font-medium text-slate-100">
+                                    Employee Overview
                                 </h3>
                             </div>
-                            <div className='p-4'>
-                                <div className='grid grid-cols-1 md:grid-cols-4 gap-4 text-center'>
-                                    <div className='bg-blue-50 rounded-lg p-4'>
-                                        <div className='text-2xl font-bold text-blue-600'>{employees.length}</div>
-                                        <div className='text-sm text-blue-800'>Total Employees</div>
+                            <div className="p-6">
+                                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                                    <div className="p-4 border border-gray-200 rounded-lg">
+                                        <div className="text-2xl font-semibold text-gray-900">{employees.length}</div>
+                                        <div className="text-sm text-gray-500">Total Employees</div>
                                     </div>
-                                    <div className='bg-green-50 rounded-lg p-4'>
-                                        <div className='text-2xl font-bold text-green-600'>
+                                    <div className="p-4 border border-gray-200 rounded-lg">
+                                        <div className="text-2xl font-semibold text-gray-900">
                                             {[...new Set(employees.map(emp => emp.department))].length}
                                         </div>
-                                        <div className='text-sm text-green-800'>Departments</div>
+                                        <div className="text-sm text-gray-500">Departments</div>
                                     </div>
-                                    <div className='bg-purple-50 rounded-lg p-4'>
-                                        <div className='text-2xl font-bold text-purple-600'>
+                                    <div className="p-4 border border-gray-200 rounded-lg">
+                                        <div className="text-2xl font-semibold text-gray-900">
                                             {employees.filter(emp => emp.role).length}
                                         </div>
-                                        <div className='text-sm text-purple-800'>With Roles</div>
+                                        <div className="text-sm text-gray-500">With Roles</div>
                                     </div>
-                                    <div className='bg-orange-50 rounded-lg p-4'>
-                                        <div className='text-2xl font-bold text-orange-600'>
+                                    <div className="p-4 border border-gray-200 rounded-lg">
+                                        <div className="text-2xl font-semibold text-gray-900">
                                             {employees.filter(emp => emp.profile_url).length}
                                         </div>
-                                        <div className='text-sm text-orange-800'>With Photos</div>
+                                        <div className="text-sm text-gray-500">With Photos</div>
                                     </div>
                                 </div>
                             </div>
@@ -523,83 +491,94 @@ function AdminTaskManagement() {
 
                     {/* Assigned Tasks List */}
                     {tasks.length > 0 && (
-                        <div className='bg-white rounded-xl shadow-lg overflow-hidden'>
-                            <div className='bg-gradient-to-r from-indigo-600 to-purple-600 px-6 py-4 flex items-center justify-between'>
+                        <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+                            <div className="px-6 py-4 border-b bg-gradient-to-r from-blue-600 to-indigo-700 border-gray-200 flex items-center justify-between">
                                 <div>
-                                    <h2 className='text-xl font-semibold text-white flex items-center gap-2'>
-                                        <span>📊</span>
-                                        Active Tasks Overview
+                                    <h2 className="text-lg font-medium text-slate-100">
+                                        Active Tasks
                                     </h2>
-                                    <p className='text-indigo-100 text-sm mt-1'>
+                                    <p className="text-sm text-slate-200 mt-1">
                                         {tasks.length} task{tasks.length !== 1 ? 's' : ''} currently assigned
                                     </p>
                                 </div>
-                                <div className='bg-white/20 rounded-full px-4 py-2'>
-                                    <span className='text-white font-bold text-lg'>{tasks.length}</span>
+                                <div className="bg-gray-100 rounded-full px-3 py-1">
+                                    <span className="text-gray-800 font-medium">{tasks.length}</span>
                                 </div>
                             </div>
                             
-                            <div className='p-6'>
-                                <div className='overflow-x-auto rounded-lg border border-gray-200'>
-                                    <table className='min-w-full'>
-                                        <thead>
-                                            <tr className='bg-gradient-to-r from-gray-50 to-blue-50'>
-                                                <th className='px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider border-b border-gray-200'>
+                            <div className="p-6">
+                                <div className="overflow-x-auto">
+                                    <table className="min-w-full divide-y divide-gray-200">
+                                        <thead className="bg-gray-50">
+                                            <tr>
+                                                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                     Task ID
                                                 </th>
-                                                <th className='px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider border-b border-gray-200'>
+                                                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                     Employee
                                                 </th>
-                                                <th className='px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider border-b border-gray-200'>
+                                                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                     Department
                                                 </th>
-                                                <th className='px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider border-b border-gray-200'>
-                                                    Task Description
+                                                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                    Description
                                                 </th>
-                                                <th className='px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider border-b border-gray-200'>
-                                                    Tag
+                                                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                    Type
                                                 </th>
-                                                <th className='px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider border-b border-gray-200'>
+                                                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                     Status
                                                 </th>
-                                                <th className='px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider border-b border-gray-200'>
+                                                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                     Assigned
                                                 </th>
-                                                <th className='px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider border-b border-gray-200'>
+                                                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                     Due Date
                                                 </th>
                                             </tr>
                                         </thead>
-                                        <tbody className='divide-y divide-gray-200'>
+                                        <tbody className="bg-white divide-y divide-gray-200">
                                             {tasks.map((task, index) => {
                                                 const isExpanded = expandedTasks[task.task_id];
                                                 const showToggle = task.task_description && task.task_description.length > 100;
-                                                
+                                                // Find the employee data for this task
+                                                const employee = employees.find(emp => emp.emp_id === task.emp_id);
+
                                                 return (
-                                                    <tr key={task.task_id} className={`hover:bg-blue-50 transition-colors duration-150 ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'}`}>
-                                                        <td className='px-6 py-4 align-top'>
-                                                            <span className="font-mono text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded border">
-                                                                {task.task_id}
-                                                            </span>
-                                                        </td>
-                                                        <td className='px-6 py-4 whitespace-nowrap'>
-                                                            <div className="flex items-center">
-                                                                <div className="h-10 w-10 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-semibold text-sm">
+                                                    <tr key={task.task_id} className="hover:bg-gray-50">
+                                                <td className="px-6 py-4 whitespace-nowrap">
+                                                    <div className="text-sm font-mono text-gray-900">{task.task_id}</div>
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap">
+                                                    <div className="flex items-center">
+                                                        <div className="flex-shrink-0 h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
+                                                            {employee?.profile_url ? (
+                                                                <img 
+                                                                    src={employee.profile_url} 
+                                                                    alt={task.emp_name}
+                                                                    className="h-full w-full object-cover"
+                                                                    onError={(e) => {
+                                                                        e.target.onerror = null;
+                                                                        e.target.src = 'default-profile-url'; // Add a default profile image URL here
+                                                                    }}
+                                                                />
+                                                            ) : (
+                                                                <span className="text-gray-600 font-medium">
                                                                     {task.emp_name ? task.emp_name.charAt(0).toUpperCase() : 'U'}
-                                                                </div>
-                                                                <div className="ml-4">
-                                                                    <div className="text-sm font-semibold text-gray-900">{task.emp_name}</div>
-                                                                    <div className="text-xs text-gray-500">ID: {task.emp_id}</div>
-                                                                </div>
-                                                            </div>
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                        <div className="ml-4">
+                                                            <div className="text-sm font-medium text-gray-900">{task.emp_name}</div>
+                                                            <div className="text-sm text-gray-500">ID: {task.emp_id}</div>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                        <td className="px-6 py-4 whitespace-nowrap">
+                                                            <div className="text-sm text-gray-900">{task.department}</div>
                                                         </td>
-                                                        <td className='px-6 py-4 align-top'>
-                                                            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 border border-blue-200">
-                                                                {task.department}
-                                                            </span>
-                                                        </td>
-                                                        <td className='px-6 py-4 min-w-[250px] max-w-[400px] align-top'>
-                                                            <div className="text-sm text-gray-900 break-words">
+                                                        <td className="px-6 py-4 max-w-xs">
+                                                            <div className="text-sm text-gray-900">
                                                                 <p className={`whitespace-pre-wrap ${isExpanded ? '' : 'line-clamp-2'}`}>
                                                                     {task.task_description}
                                                                 </p>
@@ -613,32 +592,23 @@ function AdminTaskManagement() {
                                                                 )}
                                                             </div>
                                                         </td>
-                                                        <td className='px-6 py-4 align-top'>
-                                                            <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium border ${getTaskTagColor(task.task_tag)}`}>
-                                                                <span>{getTaskTagIcon(task.task_tag)}</span>
+                                                        <td className="px-6 py-4 whitespace-nowrap">
+                                                            <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getTaskTagColor(task.task_tag)}`}>
                                                                 {task.task_tag}
                                                             </span>
                                                         </td>
-                                                        <td className='px-6 py-4 align-top'>
-                                                            <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(task.status)}`}>
+                                                        <td className="px-6 py-4 whitespace-nowrap">
+                                                            <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(task.status)}`}>
                                                                 {task.status}
                                                             </span>
                                                         </td>
-                                                        <td className='px-6 py-4 align-top text-sm text-gray-600'>
-                                                            {new Date(task.assigned_date).toLocaleDateString('en-US', {
-                                                                month: 'short',
-                                                                day: 'numeric',
-                                                                year: 'numeric'
-                                                            })}
+                                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                            {new Date(task.assigned_date).toLocaleDateString()}
                                                         </td>
-                                                        <td className='px-6 py-4 align-top'>
+                                                        <td className="px-6 py-4 whitespace-nowrap">
                                                             <div className="text-sm">
                                                                 <div className={getDueDateColor(task.due_date)}>
-                                                                    {new Date(task.due_date).toLocaleDateString('en-US', {
-                                                                        month: 'short',
-                                                                        day: 'numeric',
-                                                                        year: 'numeric'
-                                                                    })}
+                                                                    {new Date(task.due_date).toLocaleDateString()}
                                                                 </div>
                                                                 <div className="text-xs text-gray-500">
                                                                     {(() => {

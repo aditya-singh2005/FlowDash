@@ -14,7 +14,7 @@ import {
   BookOpen
 } from 'lucide-react';
 
-const EmployeeSidebar = () => {
+const EmpNavbar = () => {
   const [activeItem, setActiveItem] = useState('Dashboard');
   const [employeeData, setEmployeeData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -25,9 +25,59 @@ const EmployeeSidebar = () => {
   
   const BASE_URl = "https://ems2-backend.onrender.com"
 
+  const menuItems = [
+    {
+      id: 'Dashboard',
+      label: 'Dashboard',
+      icon: LayoutDashboard,
+      description: 'Overview & Analytics',
+      path: '/Employee-Dashboard'
+    },
+    {
+      id: 'MyTasks',
+      label: 'My Tasks',
+      icon: CheckSquare,
+      description: 'Active Assignments',
+      path: '/Employee-Task-Management'
+    },
+    {
+      id: 'Attendance',
+      label: 'Attendance',
+      icon: Calendar,
+      description: 'Check In/Out & History',
+      path: '/employee-attendance-tracking'
+    },
+    {
+      id: 'Leave',
+      label: 'Leave Management',
+      icon: FileText,
+      description: 'Apply & Track Leaves',
+      path: '/employee-leave-tracking'
+    },
+    {
+      id: 'Goals',
+      label: 'My Goals',
+      icon: Target,
+      description: 'Performance Goals',
+      path: '/employee-goal-tracking'
+    }
+  ];
+
+  // Function to determine active menu item based on current path
+  const getActiveItemFromPath = (pathname) => {
+    const activeMenuItem = menuItems.find(item => item.path === pathname);
+    return activeMenuItem ? activeMenuItem.id : 'Dashboard'; // Default to Dashboard if no match
+  };
+
   useEffect(() => {
     fetchEmployeeDetails();
   }, [])
+
+  // Update active item when location changes
+  useEffect(() => {
+    const currentActiveItem = getActiveItemFromPath(location.pathname);
+    setActiveItem(currentActiveItem);
+  }, [location.pathname]);
 
   const fetchEmployeeDetails = async () => {
     try {
@@ -84,65 +134,6 @@ const EmployeeSidebar = () => {
       setLoading(false);
     }
   }
-
-  const menuItems = [
-    {
-      id: 'Dashboard',
-      label: 'Dashboard',
-      icon: LayoutDashboard,
-      description: 'Overview & Analytics',
-      path: '/Employee-Dashboard'
-    },
-    {
-      id: 'MyTasks',
-      label: 'My Tasks',
-      icon: CheckSquare,
-      description: 'Active Assignments',
-      path: '/Employee-Task-Management'
-    },
-    {
-      id: 'TimeTracker',
-      label: 'Time Tracker',
-      icon: Clock,
-      description: 'Log Work Hours',
-      path: '/employee-time-tracker'
-    },
-    {
-      id: 'Attendance',
-      label: 'Attendance',
-      icon: Calendar,
-      description: 'Check In/Out & History',
-      path: '/employee-attendance'
-    },
-    {
-      id: 'Leave',
-      label: 'Leave Management',
-      icon: FileText,
-      description: 'Apply & Track Leaves',
-      path: '/employee-leave'
-    },
-    {
-      id: 'Goals',
-      label: 'My Goals',
-      icon: Target,
-      description: 'Performance Goals',
-      path: '/employee-goals'
-    },
-    {
-      id: 'Learning',
-      label: 'Learning & Development',
-      icon: BookOpen,
-      description: 'Training Modules',
-      path: '/employee-learning'
-    },
-    {
-      id: 'Communication',
-      label: 'Team Chat',
-      icon: MessageSquare,
-      description: 'Messages & Updates',
-      path: '/employee-chat'
-    }
-  ];
 
   const handleMenuClick = (itemId, path) => {
     setActiveItem(itemId);
@@ -319,4 +310,4 @@ const EmployeeSidebar = () => {
   );
 };
 
-export default EmployeeSidebar;
+export default EmpNavbar;

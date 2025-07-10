@@ -166,6 +166,36 @@ app.get('/api/employees', async (req, res) => {
     }
 });
 
+app.get('/api/employees/:emp_id', async (req, res) => {
+    const { emp_id } = req.params;
+    try {
+        const query = `
+            SELECT 
+                emp_id, 
+                emp_name, 
+                email, 
+                phone, 
+                department, 
+                role, 
+                date_of_joining, 
+                profile_url 
+            FROM employees
+            where emp_id = $1
+        `;
+        
+        const { rows } = await db.query(query, [emp_id]); // Pass emp_id as parameter
+        
+        if (rows.length === 0) {
+            return res.status(404).json({ error: 'Employee not found' });
+        }
+        
+        res.json({ employee: rows[0] }); // Changed key to singular 'employee'
+    } catch (err) {
+        console.error('Error fetching employees:', err);
+        res.status(500).json({ error: 'Failed to fetch employees' });
+    }
+});
+
 // API route to get all tasks
 app.get('/api/get-tasks', verifyToken, async (req, res) => {
     const emp_id = req.user.id;
@@ -259,6 +289,344 @@ app.post('/api/tasks', async (req, res) => {
         res.status(500).json({ error: 'Failed to create task' });
     }
 });
+
+// Route to fetch all leaves data
+app.get('/api/attendance', async (req, res) => {
+  try {
+    const result = await db.query(`
+      SELECT 
+        a.emp_id,
+        a.emp_name,
+        a.date,
+        a.department,
+        a.status,
+        a.check_in,
+        a.check_out,
+        e.profile_url,
+        e.role
+      FROM 
+        attendance a
+      JOIN 
+        employees e ON a.emp_id = e.emp_id
+      ORDER BY 
+        a.date DESC, a.emp_id
+    `);
+    res.json(result.rows);
+  } catch (err) {
+    console.error('Error fetching leaves report:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Route for employee check-in
+app.post('/api/attendance/check-in', async (req, res) => {
+  try {
+    const { emp_id, timestamp, status } = req.body;
+    
+    // Validate required fields
+    if (!emp_id || !timestamp || !status) {
+      return res.status(400).json({ 
+        error: 'Missing required fields: emp_id, timestamp, status' 
+      });
+    }
+
+    // Extract date and time from timestamp
+    const checkInDate = new Date(timestamp);
+    const date = checkInDate.toISOString().split('T')[0];
+    const time = checkInDate.toTimeString().split(' ')[0];
+
+    // Check if employee already checked in today
+    const existingRecord = await db.query(
+      'SELECT * FROM attendance WHERE emp_id = $1 AND date = $2',
+      [emp_id, date]
+    );
+
+    if (existingRecord.rows.length > 0) {
+      // Update existing record if check_in is null
+      if (!existingRecord.rows[0].check_in) {
+        await db.query(
+          'UPDATE attendance SET check_in = $1, status = $2 WHERE emp_id = $3 AND date = $4',
+          [time, status, emp_id, date]
+        );
+      } else {
+        return res.status(400).json({ 
+          error: 'You have already checked in today' 
+        });
+      }
+    } else {
+      // Get employee details
+      const employeeResult = await db.query(
+        'SELECT emp_name, department FROM employees WHERE emp_id = $1',
+        [emp_id]
+      );
+
+      if (employeeResult.rows.length === 0) {
+        return res.status(404).json({ 
+          error: 'Employee not found' 
+        });
+      }
+
+      const employee = employeeResult.rows[0];
+
+      // Create new attendance record
+      await db.query(
+        `INSERT INTO attendance (emp_id, emp_name, date, department, status, check_in) 
+         VALUES ($1, $2, $3, $4, $5, $6)`,
+        [emp_id, employee.emp_name, date, employee.department, status, time]
+      );
+    }
+
+    res.json({ 
+      message: 'Check-in successful',
+      data: {
+        emp_id,
+        date,
+        check_in: time,
+        status
+      }
+    });
+
+  } catch (err) {
+    console.error('Error during check-in:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Route for employee check-out
+app.post('/api/attendance/check-out', async (req, res) => {
+  try {
+    const { emp_id, timestamp } = req.body;
+    
+    // Validate required fields
+    if (!emp_id || !timestamp) {
+      return res.status(400).json({ 
+        error: 'Missing required fields: emp_id, timestamp' 
+      });
+    }
+
+    // Extract date and time from timestamp
+    const checkOutDate = new Date(timestamp);
+    const date = checkOutDate.toISOString().split('T')[0];
+    const time = checkOutDate.toTimeString().split(' ')[0];
+
+    // Check if employee has checked in today
+    const existingRecord = await db.query(
+      'SELECT * FROM attendance WHERE emp_id = $1 AND date = $2',
+      [emp_id, date]
+    );
+
+    if (existingRecord.rows.length === 0) {
+      return res.status(400).json({ 
+        error: 'You must check in first' 
+      });
+    }
+
+    const record = existingRecord.rows[0];
+
+    if (!record.check_in) {
+      return res.status(400).json({ 
+        error: 'You must check in first' 
+      });
+    }
+
+    if (record.check_out) {
+      return res.status(400).json({ 
+        error: 'You have already checked out today' 
+      });
+    }
+
+    // Update the record with check-out time
+    await db.query(
+      'UPDATE attendance SET check_out = $1 WHERE emp_id = $2 AND date = $3',
+      [time, emp_id, date]
+    );
+
+    res.json({ 
+      message: 'Check-out successful',
+      data: {
+        emp_id,
+        date,
+        check_out: time
+      }
+    });
+
+  } catch (err) {
+    console.error('Error during check-out:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Route to get today's attendance status for an employee
+app.get('/api/attendance/today/:emp_id', async (req, res) => {
+  try {
+    const { emp_id } = req.params;
+    const { date } = req.query;
+    
+    // Use provided date or today's date
+    const targetDate = date || new Date().toISOString().split('T')[0];
+    
+    const result = await db.query(
+      'SELECT * FROM attendance WHERE emp_id = $1 AND date = $2',
+      [emp_id, targetDate]
+    );
+
+    if (result.rows.length === 0) {
+      return res.json({ 
+        attendance: null,
+        message: 'No attendance record found for today'
+      });
+    }
+
+    res.json({ 
+      attendance: result.rows[0]
+    });
+
+  } catch (err) {
+    console.error('Error fetching today\'s attendance:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Route to get attendance history for an employee
+app.get('/api/attendance/history/:emp_id', async (req, res) => {
+  try {
+    const { emp_id } = req.params;
+    const { limit = 30 } = req.query;
+    
+    const result = await db.query(
+      `SELECT * FROM attendance 
+       WHERE emp_id = $1 
+       ORDER BY date DESC 
+       LIMIT $2`,
+      [emp_id, limit]
+    );
+
+    res.json({ 
+      attendance: result.rows
+    });
+
+  } catch (err) {
+    console.error('Error fetching attendance history:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// GET /api/leaves/details
+app.get('/api/leaves', async (req, res) => {
+  try {
+    const result = await db.query(`
+      SELECT 
+        l.leave_id,
+        l.emp_id,
+        e.emp_name,
+        e.department,
+        e.role,
+        e.profile_url,
+        l.leave_type,
+        l.reason,
+        l.start_date,
+        l.end_date,
+        l.status,
+        l.date_applied
+      FROM 
+        leaves l
+      JOIN 
+        employees e ON l.emp_id = e.emp_id
+      ORDER BY 
+        l.date_applied DESC
+    `);
+
+    res.json(result.rows);
+  } catch (err) {
+    console.error('Error fetching leave details:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// POST new leave request
+app.post('/api/leaves', async (req, res) => {
+    try {
+        const { emp_id, leave_type, reason, start_date, end_date } = req.body;
+        
+        // Validation
+        if (!emp_id || !leave_type || !reason || !start_date || !end_date) {
+            return res.status(400).json({ error: 'All fields are required' });
+        }
+        
+        if (new Date(end_date) < new Date(start_date)) {
+            return res.status(400).json({ error: 'End date cannot be before start date' });
+        }
+
+        const query = `
+            INSERT INTO leaves (
+                emp_id,
+                leave_type,
+                reason,
+                start_date,
+                end_date,
+                status,
+                date_applied
+            ) VALUES ($1, $2, $3, $4, $5, 'pending', CURRENT_DATE)
+            RETURNING *
+        `;
+        
+        const { rows } = await db.query(query, [
+            emp_id,
+            leave_type,
+            reason,
+            start_date,
+            end_date
+        ]);
+        
+        res.status(201).json(rows[0]);
+    } catch (err) {
+        console.error('Error creating leave request:', err);
+        res.status(500).json({ error: 'Failed to create leave request' });
+    }
+});
+
+// GET leaves for a specific employee
+app.get('/api/leaves/:emp_id', async (req, res) => {
+    try {
+        const { emp_id } = req.params;
+
+        // Validate emp_id
+        if (!emp_id || isNaN(emp_id)) {
+            return res.status(400).json({ 
+                success: false,
+                error: 'Valid employee ID is required' 
+            });
+        }
+
+        const query = `
+            SELECT * FROM leaves
+            WHERE emp_id = $1
+            ORDER BY date_applied DESC
+        `;  // Removed the parameter from here (it was incorrectly placed)
+
+        const { rows } = await db.query(query, [emp_id]);  // Parameters go here as second argument
+
+        res.status(200).json({
+            success: true,
+            count: rows.length,
+            data: rows
+        });
+
+    } catch (err) {
+        console.error('Error fetching leaves:', err);
+        res.status(500).json({
+            success: false,
+            error: 'Server error while fetching leave data',
+            details: process.env.NODE_ENV === 'development' ? err.message : undefined
+        });
+    }
+});
+
+
+
+
+
+
 
 // Error handling middleware
 app.use((err, req, res, next) => {

@@ -158,7 +158,6 @@ function EmpTaskManagement() {
                         <div className='bg-white rounded-xl shadow-lg overflow-hidden'>
                             <div className='bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-800 px-8 py-6'>
                                 <h1 className='text-3xl font-bold text-white flex items-center gap-3'>
-                                    <span className="text-4xl">✅</span>
                                     My Tasks
                                 </h1>
                                 <p className='text-slate-50 mt-2'>Track and manage your assigned tasks</p>

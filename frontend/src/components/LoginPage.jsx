@@ -69,7 +69,7 @@ function LoginPage() {
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    timeout: 10000 // 10 second timeout
+                    timeout: 15000 // 15 second timeout
                 });
                 
                 console.log('✅ Login response:', res.data);
@@ -250,11 +250,7 @@ function LoginPage() {
         resetForm();
     };
 
-    // Quick fill for testing (remove in production)
-    const fillTestData = () => {
-        setEmail('admin@example.com');
-        setPassword('admin12345');
-    };
+
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex">
@@ -327,6 +323,7 @@ function LoginPage() {
                         </div>
 
                         {/* Debug buttons - remove in production */}
+                        {/* Debug buttons - remove in production */}
                         <div className="mb-4 space-y-2">
                             <div className="flex space-x-2">
                                 <button 
@@ -338,17 +335,23 @@ function LoginPage() {
                                 </button>
                                 <button 
                                     type="button" 
-                                    onClick={checkUsers}
-                                    className="flex-1 bg-gray-100 text-gray-700 py-2 px-3 rounded-lg hover:bg-gray-200 transition-colors text-xs"
+                                    onClick={() => {
+                                        setEmail('admin@example.com');
+                                        setPassword('admin12345');
+                                    }}
+                                    className="flex-1 bg-blue-100 text-blue-700 py-2 px-3 rounded-lg hover:bg-blue-200 transition-colors text-xs"
                                 >
-                                    Check Users
+                                    Fill Admin Data
                                 </button>
                                 <button 
                                     type="button" 
-                                    onClick={fillTestData}
+                                    onClick={() => {
+                                        setEmail('employee1@example.com');
+                                        setPassword('emp12345');
+                                    }}
                                     className="flex-1 bg-green-100 text-green-700 py-2 px-3 rounded-lg hover:bg-green-200 transition-colors text-xs"
                                 >
-                                    Fill Test Data
+                                    Fill Emp Data
                                 </button>
                             </div>
                         </div>
