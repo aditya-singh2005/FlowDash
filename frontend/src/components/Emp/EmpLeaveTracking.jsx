@@ -36,6 +36,8 @@ const EmpLeaveTracking = () => {
     const [user, setUser] = useState(null);
     const [expandedRow, setExpandedRow] = useState(null);
 
+    const BASE_URl = "https://ems2-backend.onrender.com"
+
     // Get user data from localStorage
     useEffect(() => {
     const fetchUserData = async () => {
@@ -43,7 +45,7 @@ const EmpLeaveTracking = () => {
         if (userData) {
             try {
                 // Fetch additional user details
-                const response = await axios.get(`http://localhost:3000/api/employees/${userData.id}`);
+                const response = await axios.get(`${BASE_URl}/api/employees/${userData.id}`);
                 
                 // Check both possible response structures
                 const employeeData = response.data.employee || response.data.employees || {};
@@ -73,7 +75,7 @@ const EmpLeaveTracking = () => {
     // Fetch leave history
     const fetchLeaveHistory = async (empId) => {
         try {
-            const response = await fetch(`http://localhost:3000/api/leaves/${empId}`);
+            const response = await fetch(`${BASE_URl}/api/leaves/${empId}`);
             if (!response.ok) throw new Error('Failed to fetch leave history');
             
             const result = await response.json();
@@ -135,7 +137,7 @@ const EmpLeaveTracking = () => {
                 throw new Error('Please provide a reason for leave');
             }
 
-            const response = await fetch(`http://localhost:3000/api/leaves`, {
+            const response = await fetch(`${BASE_URl}/api/leaves`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

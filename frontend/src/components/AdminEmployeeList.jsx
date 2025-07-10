@@ -28,6 +28,8 @@ const AdminEmployeeList = () => {
   const [filterRole, setFilterRole] = useState('all');
   const [showActions, setShowActions] = useState(null);
 
+  const BASE_URl = "https://ems2-backend.onrender.com"
+
   // Fetch employees from backend
   useEffect(() => {
     fetchEmployees();
@@ -38,7 +40,7 @@ const AdminEmployeeList = () => {
       setLoading(true);
       setError('');
       
-      const response = await fetch('http://localhost:3000/api/employees', {
+      const response = await fetch(`${BASE_URl}/api/employees`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -141,7 +143,7 @@ const AdminEmployeeList = () => {
   const handleDeleteEmployee = async (empId) => {
     if (window.confirm('Are you sure you want to delete this employee?')) {
       try {
-        const response = await fetch(`http://localhost:3000/api/employees/${empId}`, {
+        const response = await fetch(`${BASE_URl}/api/employees/${empId}`, {
           method: 'DELETE',
           headers: {
             'Content-Type': 'application/json',
@@ -166,7 +168,7 @@ const AdminEmployeeList = () => {
 
   const handleExport = async () => {
     try {
-      const response = await fetch('http://localhost:3000/api/employees/export', {
+      const response = await fetch(`${BASE_URl}/api/employees/export`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
