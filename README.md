@@ -5,7 +5,7 @@
 ![TailwindCSS](https://img.shields.io/badge/styled%20with-Tailwind%20CSS-38B2AC.svg)  
 ![PostgreSQL](https://img.shields.io/badge/db-PostgreSQL-blue.svg)
 
-**Live Demo:** [https://your-live-link.com](#)  
+**Live Demo:** [https://flowdash.onrender.com/](#)  
 **YouTube Demo:** [🎥 Watch the demo](#)
 
 ---
@@ -16,14 +16,41 @@
 
 ---
 
-## ✨ Features
+## ✨ Key Features
 
-- 🔐 Role-based authentication (Admin & Employee)
-- 📝 Task assignment, editing, and completion tracking
-- 📊 Interactive dashboards with Chart.js and Nivo
-- 🌗 Light/Dark theme support
-- 📱 Fully responsive layout using TailwindCSS
-- 💬 Real-time visual insights into workflow status
+### 🔐 Role-Based Access
+- Secure authentication with distinct access levels for **Admins** and **Employees**
+- Smart redirection based on user roles (Admin/Employee)
+
+---
+
+### 🛠️ Admin Panel
+
+- 📊 **Comprehensive Dashboards**  
+  Visual summaries using **Chart.js**,**ReCharts**and **Nivo** for workflow, attendance, and department metrics
+- 👥 **Employee Management**  
+  View and manage employee list with department-wise summaries
+- ⏱️ **Attendance Tracking**  
+  Monitor and track employee attendance records
+- 🗓️ **Leave Request Handling**  
+  Approve or reject employee leave requests in real-time
+- ✅ **Task Assignment & Monitoring**  
+  Assign, edit, and track progress on tasks across teams
+
+---
+
+### 👤 Employee Portal
+
+- 🧑‍💼 **Profile Management**  
+  View and update personal and professional information
+- 📈 **Workflow Dashboard**  
+  Get real-time insights into assigned tasks and deadlines
+- 🕒 **Attendance Marking**  
+  Easily mark attendance with visual feedback
+- 📅 **Leave Management**  
+  Apply for leave and check request status
+- 🚀 **Personal Growth Hub**  
+  Explore learning resources and track development
 
 ---
 
@@ -31,23 +58,22 @@
 
 | Layer       | Tools & Libraries                       |
 |-------------|-----------------------------------------|
-| **Frontend** | React, Vite, TailwindCSS, Chart.js, Nivo |
+| **Frontend** | React, Vite, TailwindCSS, Chart.js |
 | **Backend**  | Node.js, Express.js                    |
 | **Database** | PostgreSQL                             |
 | **Auth**     | JWT (JSON Web Tokens)                  |
 
 ---
 
-## 🚀 Getting Started
+## 🔑 Authentication Flow
 
-### ✅ Prerequisites
+- Users sign in using their **email** and **password**
+- Backend verifies credentials and issues a **JWT token**
+- Token is securely stored in **localStorage** or **cookies**
+- **Protected routes** (both frontend & backend) require a valid token to access
+- Upon login, users are redirected to their respective dashboards:
+  - **Admins ➝ Admin Dashboard**
+  - **Employees ➝ Employee Dashboard**
 
-- Node.js (v18 or higher)
-- PostgreSQL installed and running
-- Git
 
-### 🔧 Clone the Repository
 
-```bash
-git clone https://github.com/aditya-singh2005/FlowDash.git
-cd FlowDash
