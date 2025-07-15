@@ -9,8 +9,9 @@
 ![PostgreSQL](https://img.shields.io/badge/db-PostgreSQL-blue.svg)
 ![Hosted on Render](https://img.shields.io/badge/Hosted%20on-Render-6c47ff)
 
-**Live Demo:** [https://flowdash.onrender.com/](#)  
-**YouTube Demo:** [🎥 Watch the demo](#)
+**Live Demo:** [https://flowdash.onrender.com](https://flowdash.onrender.com)
+**YouTube Demo:** [🎥 Watch the demo](https://your-youtube-demo-link.com)
+
 
 ---
 
