@@ -1,13 +1,11 @@
 # 🚀 FlowDash
 
-[![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 ![Repo Size](https://img.shields.io/github/repo-size/aditya-singh2005/FlowDash)
 ![Last Commit](https://img.shields.io/github/last-commit/aditya-singh2005/FlowDash)
-![PostgreSQL](https://img.shields.io/badge/db-PostgreSQL-blue.svg)
-![TailwindCSS](https://img.shields.io/badge/styled%20with-Tailwind%20CSS-38B2AC.svg)
 ![Made with React](https://img.shields.io/badge/Made%20with-React-blue.svg)
+![TailwindCSS](https://img.shields.io/badge/styled%20with-Tailwind%20CSS-38B2AC.svg)
 ![Chart.js](https://img.shields.io/badge/visualized%20with-Chart.js-orange.svg)
-![Code Style](https://img.shields.io/badge/code%20style-prettier-ff69b4.svg)
+![PostgreSQL](https://img.shields.io/badge/db-PostgreSQL-blue.svg)
 
 **Live Demo:** [https://flowdash.onrender.com/](#)  
 **YouTube Demo:** [🎥 Watch the demo](#)
