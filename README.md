@@ -14,6 +14,21 @@
 
 ---
 
+### ⚠️ Disclaimer About Login Access on Render
+
+🚨 **Note on First-Time Login Access:**  
+Due to **Render’s free tier policy**, the backend server may go to sleep after periods of inactivity. When this happens, the initial login attempt might fail or take time to respond.
+
+If the login page doesn’t load immediately or gives a network error:
+
+- Wait a few seconds and **refresh the page**
+- It may take **2–3 login attempts** to "wake" the backend server
+- After activation, everything should function normally
+
+> This is a limitation of the free hosting plan and **not a bug** in the application itself.
+
+---
+
 ## 🌟 About FlowDash
 
 **FlowDash** is a feature-rich dashboard platform built for team management, task tracking, and productivity visualization. With a sleek UI powered by Tailwind CSS and dynamic charting using Chart.js and Nivo, it's built for admins and employees to work collaboratively with clarity and speed.
