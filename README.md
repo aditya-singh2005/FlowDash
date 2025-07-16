@@ -11,7 +11,7 @@
 
 **Live Demo:** [https://flowdash.onrender.com](https://flowdash.onrender.com)
 
-**YouTube Demo:** [🎥 Watch the demo](https://your-youtube-demo-link.com)
+**YouTube Demo:** [🎥 Watch the demo](https://www.youtube.com/watch?v=1E6jtFieUqg)
 
 
 ---
