@@ -14,6 +14,7 @@ function EmpTaskManagement() {
     });
 
     const BASE_URl = "https://ems2-backend.onrender.com"
+    const TEST_URL = "http://localhost:3000"
 
 
     useEffect(() => {
@@ -29,7 +30,7 @@ function EmpTaskManagement() {
                 return;
             }
 
-            const res = await axios.get(`${BASE_URl}/api/get-tasks`, {
+            const res = await axios.get(`${TEST_URL}/api/get-tasks`, {
                 headers : {
                     Authorization: token
                 }
@@ -63,7 +64,7 @@ function EmpTaskManagement() {
                 return;
             }
 
-            await axios.put(`${BASE_URl}/api/tasks/${id}/status`, {
+            await axios.put(`${TEST_URL}/api/tasks/${id}/status`, {
                 status: newStatus
             },{
                 headers: {

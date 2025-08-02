@@ -4,10 +4,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const db = new pg.Client({
-  connectionString: process.env.DATABASE_URL,
-  ssl: {
-    rejectUnauthorized: false, // Required by Render for secure connection
-  },
+  connectionString: process.env.DATABASE_URL
 });
 
 const connectDB = async () => {

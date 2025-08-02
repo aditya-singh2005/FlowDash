@@ -9,6 +9,7 @@ function EmpProfilePage() {
     const [error, setError] = useState(null);
 
     const BASE_URl = "https://ems2-backend.onrender.com"
+    const TEST_URL = "http://localhost:3000"
 
     useEffect(() => {
         const fetchEmployeeDetails = async () => {
@@ -26,7 +27,7 @@ function EmpProfilePage() {
                 console.log('Making request to /api/employee-details...');
                 
                 // Fetch employee details using the token
-                const response = await fetch(`${BASE_URl}/api/employee-details`, {
+                const response = await fetch(`${TEST_URL}/api/employee-details`, {
                     method: 'GET',
                     headers: {
                         'Authorization': token,

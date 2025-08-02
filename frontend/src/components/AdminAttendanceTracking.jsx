@@ -168,13 +168,14 @@ const AdminAttendanceTracking = () => {
   const [departmentFilter, setDepartmentFilter] = useState('all');
 
   const BASE_URl = "https://ems2-backend.onrender.com"
+  const TEST_URl = "http://localhost:3000"
 
   // Fetch data from API
   useEffect(() => {
     const fetchEmployeeData = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`${BASE_URl}/api/attendance`);
+        const response = await fetch(`${TEST_URl}/api/attendance`);
         
         if (!response.ok) {
           throw new Error('Failed to fetch employee data');

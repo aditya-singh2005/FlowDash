@@ -25,6 +25,7 @@ const EmpNavbar = () => {
   const isProfileActive = location.pathname === '/Employee-Profile';
   
   const BASE_URl = "https://ems2-backend.onrender.com"
+  const TEST_URL = "http://localhost:3000"
 
   const menuItems = [
     {
@@ -95,7 +96,7 @@ const EmpNavbar = () => {
       console.log('Making request to /api/employee-details...');
       
       // Fetch employee details using the token
-      const response = await fetch(`${BASE_URl}/api/employee-details`, {
+      const response = await fetch(`${TEST_URL}/api/employee-details`, {
         method: 'GET',
         headers: {
           'Authorization': token,
