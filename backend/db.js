@@ -4,7 +4,8 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const db = new pg.Client({
-  connectionString: process.env.DATABASE_URL
+  connectionString: process.env.DEPLOYED_DATABASE_URL,
+  ssl : false
 });
 
 const connectDB = async () => {

@@ -13,14 +13,14 @@ function LoginPage() {
     const [isLoading, setIsLoading] = useState(false)
     const [statusMessage, setStatusMessage] = useState('')
 
-    const BASE_URl = "https://ems2-backend.onrender.com"
+    const BASE_URL = "https://ems2-backend.onrender.com"
     const TEST_URL = "http://localhost:3000"
 
     // Test server connection
     const testConnection = async () => {
         try {
             console.log('🔍 Testing server connection...');
-            const response = await axios.get(`${TEST_URL}/api/test`);
+            const response = await axios.get(`${BASE_URL}/api/test`);
             console.log('✅ Server test response:', response.data);
             setStatusMessage('Server is reachable!');
             setTimeout(() => setStatusMessage(''), 3000);
@@ -35,7 +35,7 @@ function LoginPage() {
     const checkUsers = async () => {
         try {
             console.log('🔍 Checking users in database...');
-            const response = await axios.get(`${TEST_URL}/api/debug-users`);
+            const response = await axios.get(`${BASE_URL}/api/debug-users`);
             console.log('👥 Users in database:', response.data);
             setStatusMessage(`Found ${response.data.count} users in database. Check console for details.`);
             setTimeout(() => setStatusMessage(''), 5000);
@@ -66,7 +66,7 @@ function LoginPage() {
                 
                 console.log('📦 Login data:', loginData);
                 
-                const res = await axios.post(`${TEST_URL}/api/login`, loginData, {
+                const res = await axios.post(`${BASE_URL}/api/login`, loginData, {
                     headers: {
                         'Content-Type': 'application/json',
                     },
@@ -128,7 +128,7 @@ function LoginPage() {
                     console.log('📦 Signup data:', signupData);
                 
                     // Step 1: Register the user
-                    const signupResponse = await axios.post(`${TEST_URL}/api/register`, signupData, {
+                    const signupResponse = await axios.post(`${BASE_URL}/api/register`, signupData, {
                         headers: {
                             'Content-Type': 'application/json',
                         },
