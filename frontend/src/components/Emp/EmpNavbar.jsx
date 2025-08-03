@@ -24,7 +24,7 @@ const EmpNavbar = () => {
   const location = useLocation();
   const isProfileActive = location.pathname === '/Employee-Profile';
   
-  const BASE_URl = "https://ems2-backend.onrender.com"
+  const BASE_URl = "https://flowdash-backend.onrender.com"
   const TEST_URL = "http://localhost:3000"
 
   const menuItems = [

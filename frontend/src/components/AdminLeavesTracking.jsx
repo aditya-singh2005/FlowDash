@@ -32,7 +32,7 @@ const AdminLeaveTracking = () => {
   const [departmentFilter, setDepartmentFilter] = useState('all');
   const [dateRangeFilter, setDateRangeFilter] = useState('all');
 
-  const BASE_URl = "https://ems2-backend.onrender.com"
+  const BASE_URl = "https://flowdash-backend.onrender.com"
   const TEST_URl = "http://localhost:3000"
 
 

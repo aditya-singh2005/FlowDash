@@ -14,7 +14,7 @@ function EmployeeDashboard() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     
-     const BASE_URl = "https://ems2-backend.onrender.com"
+     const BASE_URl = "https://flowdash-backend.onrender.com"
      const TEST_URL = "http://localhost:3000"
 
     useEffect(() => {

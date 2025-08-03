@@ -13,7 +13,7 @@ function LoginPage() {
     const [isLoading, setIsLoading] = useState(false)
     const [statusMessage, setStatusMessage] = useState('')
 
-    const BASE_URL = "https://ems2-backend.onrender.com"
+    const BASE_URL = "https://flowdash-backend.onrender.com"
     const TEST_URL = "http://localhost:3000"
 
     // Test server connection
