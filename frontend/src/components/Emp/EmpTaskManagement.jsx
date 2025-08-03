@@ -13,7 +13,7 @@ function EmpTaskManagement() {
         completed: 0
     });
 
-    const BASE_URl = "https://flowdash-backend.onrender.com"
+    const BASE_URL = "https://flowdash-backend.onrender.com"
     const TEST_URL = "http://localhost:3000"
 
 
@@ -30,7 +30,7 @@ function EmpTaskManagement() {
                 return;
             }
 
-            const res = await axios.get(`${TEST_URL}/api/get-tasks`, {
+            const res = await axios.get(`${BASE_URL}/api/get-tasks`, {
                 headers : {
                     Authorization: token
                 }
@@ -64,7 +64,7 @@ function EmpTaskManagement() {
                 return;
             }
 
-            await axios.put(`${TEST_URL}/api/tasks/${id}/status`, {
+            await axios.put(`${BASE_URL}/api/tasks/${id}/status`, {
                 status: newStatus
             },{
                 headers: {

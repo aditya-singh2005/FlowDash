@@ -36,7 +36,7 @@ const EmpLeaveTracking = () => {
     const [user, setUser] = useState(null);
     const [expandedRow, setExpandedRow] = useState(null);
 
-    const BASE_URl = "https://flowdash-backend.onrender.com"
+    const BASE_URL = "https://flowdash-backend.onrender.com"
     const TEST_URL = "http://localhost:3000"
 
     // Get user data from localStorage
@@ -46,7 +46,7 @@ const EmpLeaveTracking = () => {
         if (userData) {
             try {
                 // Fetch additional user details
-                const response = await axios.get(`${TEST_URL}/api/employees/${userData.id}`);
+                const response = await axios.get(`${BASE_URL}/api/employees/${userData.id}`);
                 
                 // Check both possible response structures
                 const employeeData = response.data.employee || response.data.employees || {};
@@ -76,7 +76,7 @@ const EmpLeaveTracking = () => {
     // Fetch leave history
     const fetchLeaveHistory = async (empId) => {
         try {
-            const response = await fetch(`${TEST_URL}/api/leaves/${empId}`);
+            const response = await fetch(`${BASE_URL}/api/leaves/${empId}`);
             if (!response.ok) throw new Error('Failed to fetch leave history');
             
             const result = await response.json();
@@ -138,7 +138,7 @@ const EmpLeaveTracking = () => {
                 throw new Error('Please provide a reason for leave');
             }
 
-            const response = await fetch(`${TEST_URL}/api/leaves`, {
+            const response = await fetch(`${BASE_URL}/api/leaves`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

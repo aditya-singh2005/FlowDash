@@ -28,8 +28,8 @@ const AdminEmployeeList = () => {
   const [filterRole, setFilterRole] = useState('all');
   const [showActions, setShowActions] = useState(null);
 
-  const BASE_URl = "https://flowdash-backend.onrender.com"
-  const TEST_URl = "http://localhost:3000"
+  const BASE_URL = "https://flowdash-backend.onrender.com"
+  const TEST_URL = "http://localhost:3000"
 
 
   // Fetch employees from backend
@@ -42,7 +42,7 @@ const AdminEmployeeList = () => {
       setLoading(true);
       setError('');
       
-      const response = await fetch(`${TEST_URl}/api/employees`, {
+      const response = await fetch(`${BASE_URL}/api/employees`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -145,7 +145,7 @@ const AdminEmployeeList = () => {
   const handleDeleteEmployee = async (empId) => {
     if (window.confirm('Are you sure you want to delete this employee?')) {
       try {
-        const response = await fetch(`${TEST_URl}/api/employees/${empId}`, {
+        const response = await fetch(`${BASE_URL}/api/employees/${empId}`, {
           method: 'DELETE',
           headers: {
             'Content-Type': 'application/json',
@@ -170,7 +170,7 @@ const AdminEmployeeList = () => {
 
   const handleExport = async () => {
     try {
-      const response = await fetch(`${TEST_URl}/api/employees/export`, {
+      const response = await fetch(`${BASE_URL}/api/employees/export`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',

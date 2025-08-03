@@ -19,7 +19,7 @@ const EmpAttendanceTracking = () => {
     const [employeeData, setEmployeeData] = useState(null);
     const [todayAttendance, setTodayAttendance] = useState(null);
 
-    const BASE_URl = "https://flowdash-backend.onrender.com"
+    const BASE_URL = "https://flowdash-backend.onrender.com"
     const TEST_URL = "http://localhost:3000"
     
     // Office timings
@@ -61,7 +61,7 @@ const EmpAttendanceTracking = () => {
                     const payload = JSON.parse(atob(token.split('.')[1]));
                     
                     // Fetch additional user details from API
-                    const response = await axios.get(`${TEST_URL}/api/employees/${userData.id}`);
+                    const response = await axios.get(`${BASE_URl}/api/employees/${userData.id}`);
                     const fullUserData = { 
                         ...userData, 
                         ...response.data.employee,
@@ -93,7 +93,7 @@ const EmpAttendanceTracking = () => {
     const fetchTodayAttendance = async (empId) => {
         try {
             const today = new Date().toISOString().split('T')[0];
-            const response = await fetch(`${TEST_URL}/api/attendance/today/${empId}?date=${today}`);
+            const response = await fetch(`${BASE_URL}/api/attendance/today/${empId}?date=${today}`);
             
             if (!response.ok) throw new Error('Failed to fetch today attendance');
             
@@ -146,7 +146,7 @@ const EmpAttendanceTracking = () => {
     // Fetch attendance history
     const fetchAttendanceHistory = async (empId) => {
         try {
-            const response = await fetch(`${TEST_URL}/api/attendance/history/${empId}`);
+            const response = await fetch(`${BASE_URL}/api/attendance/history/${empId}`);
             
             if (!response.ok) throw new Error('Failed to fetch attendance history');
             
@@ -254,7 +254,7 @@ const EmpAttendanceTracking = () => {
         setMessage('');
         
         try {
-            const response = await fetch(`${TEST_URL}/api/attendance/check-in`, {
+            const response = await fetch(`${BASE_URL}/api/attendance/check-in`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -304,7 +304,7 @@ const EmpAttendanceTracking = () => {
         setMessage('');
         
         try {
-            const response = await fetch(`${TEST_URL}/api/attendance/check-out`, {
+            const response = await fetch(`${BASE_URL}/api/attendance/check-out`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

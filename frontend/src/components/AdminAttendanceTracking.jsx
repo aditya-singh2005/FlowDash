@@ -167,15 +167,15 @@ const AdminAttendanceTracking = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [departmentFilter, setDepartmentFilter] = useState('all');
 
-  const BASE_URl = "https://flowdash-backend.onrender.com"
-  const TEST_URl = "http://localhost:3000"
+  const BASE_URL = "https://flowdash-backend.onrender.com"
+  const TEST_URL = "http://localhost:3000"
 
   // Fetch data from API
   useEffect(() => {
     const fetchEmployeeData = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`${TEST_URl}/api/attendance`);
+        const response = await fetch(`${BASE_URL}/api/attendance`);
         
         if (!response.ok) {
           throw new Error('Failed to fetch employee data');

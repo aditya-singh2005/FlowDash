@@ -14,7 +14,7 @@ function EmployeeDashboard() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     
-     const BASE_URl = "https://flowdash-backend.onrender.com"
+     const BASE_URL = "https://flowdash-backend.onrender.com"
      const TEST_URL = "http://localhost:3000"
 
     useEffect(() => {
@@ -33,7 +33,7 @@ function EmployeeDashboard() {
             console.log('Making request to /api/employee-details...');
             
             // Fetch employee details using the token
-            const response = await fetch(`${TEST_URL}/api/employee-details`, {
+            const response = await fetch(`${BASE_URL}/api/employee-details`, {
                 method: 'GET',
                 headers: {
                     'Authorization': token,

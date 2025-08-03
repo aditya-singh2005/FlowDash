@@ -22,8 +22,8 @@ function AdminTaskManagement() {
     const [loadingEmployees, setLoadingEmployees] = useState(true);
     const [employeeError, setEmployeeError] = useState(null);
 
-    const BASE_URl = "https://flowdash-backend.onrender.com"
-    const TEST_URl = "http://localhost:3000"
+    const BASE_URL = "https://flowdash-backend.onrender.com"
+    const TEST_URL = "http://localhost:3000"
 
 
     const generateUniqueTaskId = () => {
@@ -37,7 +37,7 @@ function AdminTaskManagement() {
             setLoadingEmployees(true);
             setEmployeeError(null);
             
-            const res = await axios.get(`${TEST_URl}/api/employees`);
+            const res = await axios.get(`${BASE_URL}/api/employees`);
             
             const employeeData = res.data.employees || res.data || [];
             
@@ -109,7 +109,7 @@ function AdminTaskManagement() {
 
     const fetchAllTasks = async () => {
         try {
-            const res = await axios.get(`${TEST_URl}/api/get-tasks`);
+            const res = await axios.get(`${BASE_URL}/api/get-tasks`);
             setTasks(res.data.tasks);
         } catch (err) {
             console.error('Failed to fetch tasks:', err.message);
@@ -132,7 +132,7 @@ function AdminTaskManagement() {
             };
             
             try {
-                const res = await axios.post(`${TEST_URl}/api/tasks`, newTask);
+                const res = await axios.post(`${BASE_URL}/api/tasks`, newTask);
                 setTasks(prev => [...prev, res.data.task]);
 
                 const newTaskId = generateUniqueTaskId();

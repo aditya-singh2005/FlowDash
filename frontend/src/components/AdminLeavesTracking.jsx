@@ -32,8 +32,8 @@ const AdminLeaveTracking = () => {
   const [departmentFilter, setDepartmentFilter] = useState('all');
   const [dateRangeFilter, setDateRangeFilter] = useState('all');
 
-  const BASE_URl = "https://flowdash-backend.onrender.com"
-  const TEST_URl = "http://localhost:3000"
+  const BASE_URL = "https://flowdash-backend.onrender.com"
+  const TEST_URL = "http://localhost:3000"
 
 
   // Fetch leaves data from backend
@@ -48,7 +48,7 @@ const AdminLeaveTracking = () => {
       
       // Try to fetch from API, fallback to mock data
       try {
-        const response = await fetch(`${TEST_URl}/api/leaves`);
+        const response = await fetch(`${BASE_URL}/api/leaves`);
         if (!response.ok) {
           throw new Error('Failed to fetch from API');
         }
@@ -121,7 +121,7 @@ const AdminLeaveTracking = () => {
       
       // Try to update via API, fallback to local state update
       try {
-        const response = await fetch(`${TEST_URl}/api/leaves/${leaveId}/status`, {
+        const response = await fetch(`${BASE_URL}/api/leaves/${leaveId}/status`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
